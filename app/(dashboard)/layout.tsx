@@ -1,10 +1,10 @@
 'use client'
 
-import { redirect } from 'next/navigation'
+//import { redirect } from 'next/navigation'
 import MainLayout from '@/components/layout/MainLayout'
-import { getAuth, onAuthStateChanged } from 'firebase/auth'
-import { initFirebase } from '@/lib/firebaseConfig'
-import { useEffect, useState } from 'react'
+//import { getAuth, onAuthStateChanged } from 'firebase/auth'
+//import { initFirebase } from '@/lib/firebaseConfig'
+//import { useEffect, useState } from 'react'
 
 export default function DashboardLayout({
   children,
