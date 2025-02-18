@@ -31,8 +31,8 @@ type FormData = {
 export default function SettingsPage() {
   const { 
     user, 
-    updateUserProfile, 
-    updateUserEmail 
+    updateProfile: updateUserProfile, 
+    updateEmail: updateUserEmail 
   } = useFirebaseAuth();
   const { theme, toggleTheme } = useTheme();
 
@@ -57,9 +57,7 @@ export default function SettingsPage() {
     try {
       if (user) {
         // Mise à jour du profil
-        await updateUserProfile({ 
-          displayName: formData.name 
-        });
+        await updateUserProfile(formData.name);
 
         // Mise à jour de l'email si différent
         if (formData.email !== user.email) {
@@ -69,9 +67,8 @@ export default function SettingsPage() {
         toast.success('Profil mis à jour avec succès');
         setIsEditing(false);
       }
-    } catch (error) {
-      console.error('Erreur de mise à jour du profil', error);
-      toast.error('Impossible de mettre à jour le profil');
+    } catch (error: any) {
+      toast.error('Erreur lors de la mise à jour du profil', error.message);
     } finally {
       setIsLoading(false);
     }

@@ -2,12 +2,15 @@ import { useState } from 'react';
 import { useFirebaseAuth } from '@/hooks/useFirebaseAuth';
 
 export default function AuthManager() {
-  const [{ user, loading, error }, { 
+  const { 
+    user, 
+    loading, 
+    error, 
     signInWithGoogle, 
-    signInWithEmailPassword, 
-    signOut, 
-    createUserWithEmailPassword 
-  }] = useFirebaseAuth();
+    signInWithEmail: signInWithEmailPassword, 
+    logout: signOut, 
+    signUpWithEmail: createUserWithEmailPassword 
+  } = useFirebaseAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -102,17 +105,15 @@ export default function AuthManager() {
             onClick={() => setIsSignUp(!isSignUp)}
             className="btn btn-secondary"
           >
-            {isSignUp ? 'Déjà un compte ?' : 'Créer un compte'}
+            {isSignUp ? 'Déjà un compte ? Se connecter' : 'Pas de compte ? S\'inscrire'}
           </button>
-        </div>
-        
-        <div className="social-login">
+
           <button 
             type="button"
             onClick={signInWithGoogle}
             className="btn btn-google"
           >
-            Connexion avec Google
+            Continuer avec Google
           </button>
         </div>
       </form>

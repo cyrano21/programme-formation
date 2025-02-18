@@ -3,7 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { programData } from "@/utils/modules-data";
 import { Icons } from "@/utils/icons";
@@ -17,7 +17,10 @@ export default function Modules() {
       <header className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <span className="text-2xl font-bold text-primary">CoachVerse</span>
+            <span className="text-2xl font-bold text-primary flex items-center">
+              <Icons.Book className="mr-2 text-primary" size={24} />
+              CoachVerse
+            </span>
             <nav className="hidden md:flex gap-6 ml-8">
               <button onClick={() => router.push("/dashboard")} className="text-sm font-medium hover:text-primary transition-colors">Dashboard</button>
               <button onClick={() => router.push("/modules")} className="text-sm font-medium text-primary border-b-2 border-primary">Modules</button>
@@ -86,7 +89,7 @@ export default function Modules() {
                               key={index} 
                               className="flex items-start gap-3 p-2 rounded-lg hover:bg-emerald-50 transition-colors"
                             >
-                              <span className="text-xl text-emerald-600/70">{theme.icon}</span>
+                              <span className="text-2xl">{theme.icon}</span>
                               <div>
                                 <h5 className="font-medium text-emerald-600">{theme.title}</h5>
                                 <p className="text-sm text-muted-foreground">{theme.description}</p>
@@ -106,7 +109,7 @@ export default function Modules() {
                               variant="secondary" 
                               className="text-sm hover:bg-purple-100 transition-colors"
                             >
-                              <span className="mr-1 text-purple-600/70">{competency.icon}</span> 
+                              <span className="mr-1 text-xl">{competency.icon}</span> 
                               {competency.name}
                             </Badge>
                           ))}

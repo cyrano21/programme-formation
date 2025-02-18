@@ -21,7 +21,7 @@ const registerSchema = z.object({
 type RegisterFormData = z.infer<typeof registerSchema>
 
 export default function Register() {
-  const { signUpWithEmail, signInWithGoogle, error: authError } = useFirebaseAuth()
+  const { signUpWithEmail, signInWithGoogle, error: authError, updateProfile } = useFirebaseAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -37,8 +37,13 @@ export default function Register() {
     setIsLoading(true)
     setError(null)
     try {
-      const result = await signUpWithEmail(data.email, data.password, data.name)
-      if (!result) {
+      // D'abord créer le compte
+      const result = await signUpWithEmail(data.email, data.password)
+      
+      // Ensuite mettre à jour le profil
+      if (result) {
+        await updateProfile(data.name)
+      } else {
         // Gestion spécifique des erreurs
         if (authError?.code === 'auth/email-already-in-use') {
           setError('Un compte existe déjà avec cet email. Voulez-vous vous connecter ?')
@@ -52,7 +57,7 @@ export default function Register() {
     } finally {
       setIsLoading(false)
     }
-  }
+  };
 
   const handleGoogleSignUp = async () => {
     setIsLoading(true)

@@ -1,57 +1,45 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useFirebaseAuth } from '@/hooks/useFirebaseAuth';
-import { Icons } from '@/utils/icons';
-import { UserRole } from '@/types/global';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
+import Loading from "@/components/ui/loading"; // Mise à jour du chemin d'import
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRoles?: UserRole[];
+  requiredRoles?: string[];
 }
 
-export function ProtectedRoute({ 
-  children, 
-  requiredRoles = [] 
+export default function ProtectedRoute({
+  children,
+  requiredRoles = [],
 }: ProtectedRouteProps) {
-  const [{ user, loading }, { getUserRoles }] = useFirebaseAuth();
+  const { user, loading, getUserRoles } = useFirebaseAuth();
   const router = useRouter();
 
   useEffect(() => {
-    const checkAccess = async () => {
-      if (loading) return
-
-      if (!user) {
-        router.push('/login')
-        return
-      }
-
-      if (requiredRoles.length > 0) {
-        const userRoles = await getUserRoles()
-        const hasRequiredRole = requiredRoles.some(role => 
-          userRoles.includes(role)
-        )
-
-        if (!hasRequiredRole) {
-          router.push('/unauthorized')
+    const checkAuth = async () => {
+      if (!loading) {
+        if (!user) {
+          router.push("/auth/login");
+        } else if (requiredRoles.length > 0) {
+          const userRoles = await getUserRoles();
+          const hasRequiredRole = requiredRoles.some((role) =>
+            userRoles.includes(role)
+          );
+          if (!hasRequiredRole) {
+            router.push("/unauthorized");
+          }
         }
       }
-    }
+    };
 
-    checkAccess()
-  }, [user, loading, requiredRoles])
+    checkAuth();
+  }, [user, loading, router, requiredRoles, getUserRoles]);
 
   if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-spinner">
-          <Icons.Loader className="animate-spin" />
-          <p>Vérification de l'accès...</p>
-        </div>
-      </div>
-    )
+    return <Loading />;
   }
 
-  return <>{children}</>
+  return user ? <>{children}</> : null;
 }

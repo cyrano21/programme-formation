@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
@@ -16,7 +16,6 @@ import {
 import { 
   Form, 
   FormControl, 
-  FormDescription, 
   FormField, 
   FormItem, 
   FormLabel, 
@@ -99,7 +98,10 @@ export function ModuleForm({
             <FormItem>
               <FormLabel>Titre du module</FormLabel>
               <FormControl>
-                <Input placeholder="Titre du module" {...field} />
+                <Input 
+                  placeholder="Titre du module" 
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -114,7 +116,7 @@ export function ModuleForm({
               <FormLabel>Description</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="Description détaillée du module" 
+                  placeholder="Description du module" 
                   {...field} 
                 />
               </FormControl>
@@ -154,7 +156,7 @@ export function ModuleForm({
           name="duration"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Durée (minutes)</FormLabel>
+              <FormLabel>Durée (en heures)</FormLabel>
               <FormControl>
                 <Input 
                   type="number" 
@@ -195,17 +197,14 @@ export function ModuleForm({
               Annuler
             </Button>
           )}
-          
           <Button 
             type="submit" 
             disabled={isSubmitting}
           >
-            {initialData ? 'Mettre à jour' : 'Créer le module'}
+            {initialData ? 'Mettre à jour' : 'Créer'}
           </Button>
         </div>
       </form>
     </Form>
-  )
+  );
 }
-
-

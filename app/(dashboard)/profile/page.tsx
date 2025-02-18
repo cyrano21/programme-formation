@@ -4,7 +4,7 @@ import React from "react";
 import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
 
 export default function ProfilePage() {
-  const [{ user, loading }, { logout }] = useFirebaseAuth();
+  const { user, loading, logout } = useFirebaseAuth();
 
   if (loading) {
     return <div className="text-center mt-10">Chargement...</div>;

@@ -13,7 +13,10 @@ type MainLayoutProps = {
 };
 
 function MainLayoutContent({ children }: MainLayoutProps) {
-  const [{ user }, { logout }] = useFirebaseAuth();
+  const { 
+    user, 
+    logout 
+  } = useFirebaseAuth();
   const { theme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
@@ -102,58 +105,27 @@ function MainLayoutContent({ children }: MainLayoutProps) {
         </div>
       </nav>
 
-      {/* Sidebar */}
-      <aside className={`main-sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <nav className="sidebar-nav">
-          <ul>
-            <li>
-              <a href="/dashboard">
-                <Icons.Home /> Tableau de Bord
-              </a>
-            </li>
-            <li>
-              <a href="/modules">
-                <Icons.BookOpen /> Modules
-              </a>
-            </li>
-            <li>
-              <a href="/lessons">
-                <Icons.FileText /> Leçons
-              </a>
-            </li>
-            <li>
-              <a href="/profile">
-                <Icons.User /> Profil
-              </a>
-            </li>
-            <li>
-              <a href="/settings">
-                <Icons.Settings /> Paramètres
-              </a>
-            </li>
-          </ul>
-        </nav>
-        <div className="sidebar-support">
-          <button onClick={toggleSupportModal}>
-            <Icons.HelpCircle /> Support
-          </button>
-        </div>
-      </aside>
-
       {/* Contenu Principal */}
       <main className="main-content">
         {children}
       </main>
 
-      {/* Footer */}
-      <Footer />
+      {/* Sidebar */}
+      {isSidebarOpen && (
+        <div className="sidebar">
+          {/* Contenu de la sidebar */}
+        </div>
+      )}
 
       {/* Support Contact Modal */}
       {isSupportModalOpen && (
-        <SupportContact onClose={() => setIsSupportModalOpen(false)} />
+        <SupportContact onClose={toggleSupportModal} />
       )}
 
-      {/* Toast Notifications */}
+      {/* Footer */}
+      <Footer />
+
+      {/* Toaster pour les notifications */}
       <Toaster />
     </div>
   );

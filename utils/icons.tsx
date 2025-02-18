@@ -1,32 +1,41 @@
 import React from 'react';
 import * as LucideIcons from 'lucide-react';
 
-// Type pour les noms d'icônes dynamiques
-export type IconName = keyof typeof LucideIcons;
+// Explicitly define the type of LucideIcons
+type LucideIconComponent = React.ComponentType<{
+  size?: number;
+  strokeWidth?: number;
+  color?: string;
+  className?: string;
+}>;
 
-// Composant d'icône générique
-export const Icon: React.FC<{ 
-  name: IconName, 
-  className?: string, 
-  size?: number 
-}> = ({ name, className, size = 24 }) => {
-  const IconComponent = LucideIcons[name];
+// Create a type that allows any string key
+type IconName = string & keyof typeof LucideIcons;
+
+// Interface for icon props
+interface IconProps {
+  size?: number;
+  strokeWidth?: number;
+  color?: string;
+  className?: string;
+}
+
+// Utility function to create icon components with type assertion
+const createIconComponent = (name: string) => {
+  // Type assertion to bypass strict type checking
+  const IconComponent = LucideIcons[name as IconName] as LucideIconComponent;
   
-  if (!IconComponent) {
-    console.warn(`Icône ${name} non trouvée`);
-    return null;
-  }
-
-  return React.createElement(IconComponent, { className, size });
+  return (props?: IconProps) => {
+    if (!IconComponent) {
+      console.warn(`Icon ${name} not found`);
+      return null;
+    }
+    
+    return React.createElement(IconComponent, props as any);
+  };
 };
 
-// Fonction utilitaire pour créer des composants d'icônes
-const createIconComponent = (name: IconName) => {
-  return (props?: React.ComponentProps<typeof LucideIcons[typeof name]>) => 
-    React.createElement(LucideIcons[name], props);
-};
-
-// Exportation des icônes couramment utilisées
+// Export commonly used icons
 export const Icons = {
   BookOpen: createIconComponent('BookOpen'),
   Book: createIconComponent('Book'),
@@ -89,14 +98,13 @@ export const Icons = {
         d="M12 23c2.97 0 5.46-1 7.28-2.69l-3.57-2.77c-.99.69-2.26 1.1-3.71 1.1-2.87 0-5.3-1.94-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
       />
       <path 
-        fill="#FBBC05" 
-        d="M5.84 14.11c-.22-.69-.35-1.43-.35-2.11s.13-1.42.35-2.11V7.05H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.95l2.66-2.84z"
+        fill="#EA4335" 
+        d="M5.57 14.5c-.26-.78-.4-1.61-.4-2.5s.14-1.72.4-2.5V6.66H2.18C1.43 8.22 1 10.06 1 12s.43 3.78 1.18 5.34l3.39-2.84z"
       />
       <path 
-        fill="#EA4335" 
-        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.05l3.66 2.84c.86-2.59 3.29-4.51 6.16-4.51z"
+        fill="#FBBC05" 
+        d="M12 4.75c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 1.18 14.97 0 12 0 7.7 0 3.99 2.47 2.18 6.66l3.39 2.84c.86-2.59 3.29-4.5 6.43-4.5z"
       />
-      <path d="M1 1h22v22H1z" fill="none" />
     </svg>
-  )
+  ),
 };

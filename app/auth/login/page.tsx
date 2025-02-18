@@ -18,7 +18,7 @@ type LoginFormData = z.infer<typeof loginSchema>
 
 export default function Login() {
   const router = useRouter()
-  const [{ error: authError }, authMethods] = useFirebaseAuth()
+  const { error: authError, signInWithEmail, signInWithGoogle } = useFirebaseAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -34,10 +34,7 @@ export default function Login() {
     setIsLoading(true)
     setError(null)
     try {
-      if (!authMethods.signInWithEmail) {
-        throw new Error('Méthode de connexion non disponible')
-      }
-      const result = await authMethods.signInWithEmail(data.email, data.password)
+      const result = await signInWithEmail(data.email, data.password)
       if (result) {
         router.push('/dashboard')
       } else {
@@ -49,16 +46,13 @@ export default function Login() {
     } finally {
       setIsLoading(false)
     }
-  }
+  };
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
     setError(null)
     try {
-      if (!authMethods.signInWithGoogle) {
-        throw new Error('Connexion Google non disponible')
-      }
-      const result = await authMethods.signInWithGoogle()
+      const result = await signInWithGoogle()
       if (result) {
         router.push('/dashboard')
       } else {

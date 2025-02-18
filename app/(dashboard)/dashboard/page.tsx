@@ -12,8 +12,24 @@ import { useRouter } from 'next/navigation'
 
 export default function Dashboard() {
   const router = useRouter();
-  const [{ user }, {}] = useFirebaseAuth();
+  const { user } = useFirebaseAuth();
   const { name } = getOwnerInfo();
+
+  const navigateToModules = () => {
+    router.push('/modules');
+  };
+
+  const navigateToLessons = () => {
+    router.push('/lessons');
+  };
+
+  const navigateToTools = () => {
+    router.push('/tools');
+  };
+
+  const navigateToAssessments = () => {
+    router.push('/assessments');
+  };
 
   const dashboardStats = [
     { 
@@ -133,6 +149,7 @@ export default function Dashboard() {
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
                   {stat.icon}
+                  <Badge variant="secondary">In Progress</Badge>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stat.value}</div>
@@ -176,9 +193,7 @@ export default function Dashboard() {
                   <p className="text-muted-foreground mb-4">
                     Continuez votre parcours de formation
                   </p>
-                  <Link href="/modules">
-                    <Button className="w-full">Voir les Modules</Button>
-                  </Link>
+                  <Button onClick={navigateToModules} className="w-full">Voir les Modules</Button>
                 </CardContent>
               </Card>
               <Card>
@@ -189,9 +204,7 @@ export default function Dashboard() {
                   <p className="text-muted-foreground mb-4">
                     Explorez vos leçons en cours
                   </p>
-                  <Link href="/lessons">
-                    <Button className="w-full">Mes Leçons</Button>
-                  </Link>
+                  <Button onClick={navigateToLessons} className="w-full">Mes Leçons</Button>
                 </CardContent>
               </Card>
               <Card>
@@ -202,9 +215,18 @@ export default function Dashboard() {
                   <p className="text-muted-foreground mb-4">
                     Découvrez nos outils de développement
                   </p>
-                  <Link href="/tools">
-                    <Button className="w-full">Voir les Outils</Button>
-                  </Link>
+                  <Button onClick={navigateToTools} className="w-full">Voir les Outils</Button>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Assessments</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    Voir vos évaluations
+                  </p>
+                  <Button onClick={navigateToAssessments} className="w-full">Voir les Assessments</Button>
                 </CardContent>
               </Card>
             </div>

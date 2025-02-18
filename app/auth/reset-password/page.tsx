@@ -14,7 +14,7 @@ const resetPasswordSchema = z.object({
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>
 
 export default function ResetPassword() {
-  const [{ user }, { resetPassword }] = useFirebaseAuth()
+  const { resetPassword } = useFirebaseAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<{
     type: 'success' | 'error'
@@ -46,7 +46,7 @@ export default function ResetPassword() {
     } finally {
       setIsLoading(false)
     }
-  }
+  };
 
   return (
     <div className="auth-container">
@@ -84,9 +84,9 @@ export default function ResetPassword() {
             className="btn-primary"
           >
             {isLoading ? (
-              <><Icons.Loader className="animate-spin" /> Envoi...</>
+              <><Icons.RefreshCw className="animate-spin" /> Envoi...</>
             ) : (
-              <>Réinitialiser <Icons.Send /></>
+              <>Réinitialiser <Icons.ChevronRight /></>
             )}
           </button>
 
@@ -98,5 +98,3 @@ export default function ResetPassword() {
     </div>
   )
 }
-
-
