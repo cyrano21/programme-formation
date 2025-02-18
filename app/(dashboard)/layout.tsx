@@ -11,6 +11,15 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
+  // Temporarily remove authentication checks
+  return (
+    <MainLayout>
+      {children}
+    </MainLayout>
+  );
+
+  // Commented out original authentication logic
+  /*
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
 
   useEffect(() => {
@@ -62,5 +71,6 @@ export default function DashboardLayout({
     <MainLayout>
       {children}
     </MainLayout>
-  )
+  );
+  */
 }

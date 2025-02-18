@@ -1,0 +1,42 @@
+:root {
+  /* Color Palette */
+  --color-primary: #3498db;
+  --color-secondary: #2ecc71;
+  --color-background: #f4f6f7;
+  --color-text: #2c3e50;
+  
+  /* Typography */
+  --font-family-base: 'Inter', sans-serif;
+  --font-size-base: 16px;
+  
+  /* Spacing */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  
+  /* Transitions */
+  --transition-speed: 0.3s;
+}
+
+/* Dark Mode */
+.dark {
+  --color-background: #1a1a2e;
+  --color-text: #e0e0e0;
+}
+
+/* Global Resets */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  line-height: 1.6;
+  transition: background-color var(--transition-speed), color var(--transition-speed);
+}

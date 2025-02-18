@@ -5,7 +5,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Icons } from '@/utils/icons'
-import { useFirebaseAuth } from '@/hooks/useFirebaseAuth'
+// Commented out Firebase auth import
+// import { useFirebaseAuth } from '@/hooks/useFirebaseAuth'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -18,7 +19,8 @@ type LoginFormData = z.infer<typeof loginSchema>
 
 export default function Login() {
   const router = useRouter()
-  const { error: authError, signInWithEmail, signInWithGoogle } = useFirebaseAuth()
+  // Commented out authentication hooks
+  // const { error: authError, signInWithEmail, signInWithGoogle } = useFirebaseAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -34,12 +36,10 @@ export default function Login() {
     setIsLoading(true)
     setError(null)
     try {
-      const result = await signInWithEmail(data.email, data.password)
-      if (result) {
-        router.push('/dashboard')
-      } else {
-        setError(authError?.message || 'Impossible de se connecter')
-      }
+      // Temporarily log the data instead of authenticating
+      console.log('Login attempt:', data)
+      // Directly navigate to dashboard without authentication
+      router.push('/dashboard')
     } catch (err) {
       console.error('Erreur lors de la connexion :', err)
       setError(err instanceof Error ? err.message : 'Une erreur inattendue est survenue')
@@ -52,12 +52,8 @@ export default function Login() {
     setIsLoading(true)
     setError(null)
     try {
-      const result = await signInWithGoogle()
-      if (result) {
-        router.push('/dashboard')
-      } else {
-        setError(authError?.message || 'Impossible de se connecter avec Google')
-      }
+      // Directly navigate to dashboard
+      router.push('/dashboard')
     } catch (err) {
       console.error('Erreur lors de la connexion Google :', err)
       setError(err instanceof Error ? err.message : 'Une erreur inattendue est survenue')
@@ -119,11 +115,25 @@ export default function Login() {
             </div>
           </div>
 
-          {error && (
-            <div className="text-red-500 text-sm text-center">
-              {error}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <input
+                id="remember-me"
+                name="remember-me"
+                type="checkbox"
+                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              />
+              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                Se souvenir de moi
+              </label>
             </div>
-          )}
+
+            <div className="text-sm">
+              <Link href="/auth/reset-password" className="font-medium text-indigo-600 hover:text-indigo-500">
+                Mot de passe oublié ?
+              </Link>
+            </div>
+          </div>
 
           <div>
             <button
@@ -131,40 +141,41 @@ export default function Login() {
               disabled={isLoading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              {isLoading ? (
-                <Icons.Loader className="animate-spin" />
-              ) : (
-                'Se connecter'
-              )}
+              {isLoading ? 'Connexion en cours...' : 'Se connecter'}
             </button>
           </div>
 
-          <div className="text-center">
-            <p className="mt-2 text-sm text-gray-600">
-              Pas de compte ? {' '}
-              <Link href="/auth/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-                Inscrivez-vous
-              </Link>
-            </p>
-          </div>
-
-          <div className="flex items-center justify-center mt-4">
-            <div className="w-full border-t border-gray-300"></div>
-            <div className="px-4 text-gray-500 text-sm">Ou</div>
-            <div className="w-full border-t border-gray-300"></div>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">
+                Ou continuer avec
+              </span>
+            </div>
           </div>
 
           <div>
             <button
               type="button"
               onClick={handleGoogleSignIn}
-              disabled={isLoading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
             >
-              <Icons.Google className="mr-2" /> Se connecter avec Google
+              <Icons.Google className="w-5 h-5 mr-2" />
+              Connexion avec Google
             </button>
           </div>
         </form>
+
+        <div className="text-center">
+          <p className="mt-2 text-sm text-gray-600">
+            Pas de compte ?{' '}
+            <Link href="/auth/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+              Créer un compte
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )

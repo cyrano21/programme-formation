@@ -29,10 +29,9 @@ const SIDEBAR_NAVIGATION: SidebarNavItem[] = [
 ];
 
 function MainLayoutContent({ children }: MainLayoutProps) {
+  // Temporarily comment out authentication
+  /*
   const { user, logout } = useFirebaseAuth();
-  const { theme } = useTheme();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState<string | null>(null);
 
   const getAvatarUrl = useCallback((user: any) => {
@@ -53,6 +52,11 @@ function MainLayoutContent({ children }: MainLayoutProps) {
       img.src = url;
     }
   }, [user, getAvatarUrl]);
+  */
+
+  const { theme } = useTheme();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
 
   const toggleSidebar = () => setIsSidebarOpen(prev => !prev);
   const toggleSupportModal = () => setIsSupportModalOpen(prev => !prev);
@@ -127,6 +131,8 @@ function MainLayoutContent({ children }: MainLayoutProps) {
           <div className="navbar-user flex items-center space-x-4">
             <ThemeToggle />
             
+            {/* Commented out user authentication section */}
+            {/*
             {user ? (
               <div className="flex items-center space-x-2">
                 {avatarSrc && (
@@ -150,6 +156,7 @@ function MainLayoutContent({ children }: MainLayoutProps) {
                 Connexion <Icons.LogOut />
               </Link>
             )}
+            */}
           </div>
         </nav>
 
