@@ -91,7 +91,7 @@ export default function ModuleDetail() {
         <div className="flex items-center justify-between mb-8">
           <Link href="/modules">
             <Button variant="outline" className="mb-4">
-              <Icons.ChevronLeft className="mr-2" /> Retour aux modules
+              <Icons.ChevronStart className="mr-2" /> Retour aux modules
             </Button>
           </Link>
         </div>
@@ -207,7 +207,7 @@ export default function ModuleDetail() {
                 className="bg-primary hover:bg-primary/90 text-white"
               >
                 Commencer la première leçon
-                <Icons.ArrowRight className="ml-2" />
+                <Icons.ArrowEnd className="ml-2" />
               </Button>
             </Link>
           </div>

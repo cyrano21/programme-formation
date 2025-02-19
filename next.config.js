@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   reactStrictMode: true,
   typescript: {
@@ -10,7 +12,7 @@ const nextConfig = {
   webpack: (config, { isServer }) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': __dirname,
+      '@': path.resolve(__dirname),
     }
 
     // Handle source maps for external libraries

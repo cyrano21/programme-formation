@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Icons } from '@/utils/icons'
-import { useFirebaseAuth } from '@/hooks/useFirebaseAuth'
+import { useAuth } from '@/features/auth/hooks/useAuth'
 
 const resetPasswordSchema = z.object({
   email: z.string().email('Email invalide')
@@ -14,7 +14,7 @@ const resetPasswordSchema = z.object({
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>
 
 export default function ResetPassword() {
-  const { resetPassword } = useFirebaseAuth()
+  const { resetPassword } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<{
     type: 'success' | 'error'
@@ -86,7 +86,7 @@ export default function ResetPassword() {
             {isLoading ? (
               <><Icons.RefreshCw className="animate-spin" /> Envoi...</>
             ) : (
-              <>Réinitialiser <Icons.ChevronRight /></>
+              <>Réinitialiser <Icons.ChevronEnd /></>
             )}
           </button>
 

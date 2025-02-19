@@ -1,14 +1,14 @@
-'use client'
+'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { useFirebaseAuth } from '@/hooks/useFirebaseAuth';
 import { ThemeProvider, ThemeToggle, useTheme } from '@/contexts/ThemeContext';
 import { Icons } from '@/utils/icons';
 import Footer from './Footer';
 import SupportContact from '../SupportContact';
 import { Toaster } from '@/components/ui/toaster';
 import { Button } from '@/components/ui/button';
+import { useFirebaseAuth } from '@/hooks/useFirebaseAuth';
 
 type MainLayoutProps = {
   children: React.ReactNode;
@@ -21,149 +21,146 @@ type SidebarNavItem = {
 };
 
 const SIDEBAR_NAVIGATION: SidebarNavItem[] = [
-  { href: "/dashboard", icon: "Home", label: "Tableau de Bord" },
-  { href: "/modules", icon: "BookOpen", label: "Modules" },
-  { href: "/lessons", icon: "FileText", label: "Leçons" },
-  { href: "/profile", icon: "User", label: "Profil" },
-  { href: "/settings", icon: "Settings", label: "Paramètres" }
+  { href: '/dashboard', icon: 'Home', label: 'Tableau de Bord' },
+  { href: '/modules', icon: 'BookOpen', label: 'Modules' },
+  { href: '/lessons', icon: 'FileText', label: 'Leçons' },
+  { href: '/profile', icon: 'User', label: 'Profil' },
+  { href: '/settings', icon: 'Settings', label: 'Paramètres' },
 ];
 
 function MainLayoutContent({ children }: MainLayoutProps) {
-  // Temporarily comment out authentication
-  /*
-  const { user, logout } = useFirebaseAuth();
-  const [avatarSrc, setAvatarSrc] = useState<string | null>(null);
-
-  const getAvatarUrl = useCallback((user: any) => {
-    if (user.photoURL) return user.photoURL;
-
-    const name = user.displayName || user.email || 'User';
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=128`;
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      const url = getAvatarUrl(user);
-      setAvatarSrc(url);
-      
-      const img = new Image();
-      img.onload = () => console.log('Avatar loaded:', url);
-      img.onerror = (e) => console.error('Avatar load error:', url, e);
-      img.src = url;
-    }
-  }, [user, getAvatarUrl]);
-  */
-
   const { theme } = useTheme();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { user, logout } = useFirebaseAuth();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
 
-  const toggleSidebar = () => setIsSidebarOpen(prev => !prev);
-  const toggleSupportModal = () => setIsSupportModalOpen(prev => !prev);
+  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+  const toggleSupportModal = () => setIsSupportModalOpen((prev) => !prev);
 
   return (
-    <div className={`main-layout ${theme} flex`}>
+    <div
+      className={`main-layout ${theme} flex flex-col md:flex-row min-h-screen max-h-screen overflow-hidden bg-gradient-to-br from-background to-background/95`}
+    >
       {/* Sidebar */}
-      <aside 
-        className={`main-sidebar 
-          ${isSidebarOpen ? 'w-64' : 'w-16'} 
-          transition-all duration-300 
-          bg-background 
-          border-r 
+      <aside
+        className={`
+          fixed md:sticky md:top-0 md:h-screen
+          inset-y-0 left-0 z-50
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} 
+          w-[280px] md:w-64
+          transition-all duration-300 ease-in-out
+          bg-background/98 backdrop-blur-xl
+          border-r border-border/40
+          shadow-xl
+          flex flex-col
           overflow-hidden
         `}
       >
-        <nav className="sidebar-nav p-2">
-          <ul className="space-y-2">
+        <div className="flex items-center justify-between p-4 border-b border-border/40">
+          <span className="text-xl font-semibold text-primary">CoachVerse</span>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="md:hidden"
+          >
+            <Icons.X className="h-5 w-5" />
+          </Button>
+        </div>
+
+        <nav className="sidebar-nav p-4">
+          <ul className="space-y-3">
             {SIDEBAR_NAVIGATION.map((item) => {
               const IconComponent = Icons[item.icon];
               return (
                 <li key={item.href}>
-                  <Link 
-                    href={item.href} 
+                  <Link
+                    href={item.href}
                     className={`
-                      flex items-center 
-                      p-2 
-                      hover:bg-accent 
-                      rounded-md 
-                      transition-colors
-                      ${isSidebarOpen ? 'justify-start' : 'justify-center'}
+                      flex items-center gap-3
+                      px-4 py-3
+                      hover:bg-primary/10
+                      rounded-lg 
+                      transition-all duration-200
+                      shadow-sm hover:shadow-md
+                      text-foreground/80 hover:text-primary
+                      group
                     `}
+                    onClick={() => setIsSidebarOpen(false)}
                   >
-                    <IconComponent className="mr-2" />
-                    {isSidebarOpen && <span>{item.label}</span>}
+                    <IconComponent className="h-5 w-5" />
+                    <span className="font-medium">{item.label}</span>
                   </Link>
                 </li>
               );
             })}
           </ul>
         </nav>
-        
-        {isSidebarOpen && (
-          <div className="sidebar-support p-2 border-t">
-            <Button 
-              variant="ghost" 
-              onClick={toggleSupportModal} 
-              className="w-full"
-            >
-              <Icons.HelpCircle className="mr-2" /> Support
-            </Button>
-          </div>
-        )}
+
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border/40">
+          <Button
+            variant="ghost"
+            onClick={toggleSupportModal}
+            className="w-full flex items-center gap-2 justify-center"
+          >
+            <Icons.HelpCircle className="h-5 w-5" />
+            <span>Support</span>
+          </Button>
+        </div>
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex flex-col flex-1">
+      <div className="flex-1 flex flex-col min-h-screen w-full relative overflow-hidden">
         {/* Navigation Bar */}
-        <nav className="main-navbar flex items-center justify-between p-4 border-b">
-          <div className="navbar-brand flex items-center">
-            <Button 
-              variant="ghost" 
-              size="icon" 
+        <nav className="sticky top-0 z-40 w-full flex items-center justify-between px-4 py-3 md:py-4 border-b border-border/40 bg-background/98 backdrop-blur-xl shadow-md">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={toggleSidebar}
-              className="mr-4"
+              className="md:hidden"
             >
-              <Icons.Menu />
+              <Icons.Menu className="h-5 w-5" />
             </Button>
-            <h1 className="text-xl font-bold">Programme de Formation</h1>
+            <h1 className="text-lg md:text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-dark truncate">
+              Programme de Formation
+            </h1>
           </div>
-          
-          <div className="navbar-user flex items-center space-x-4">
-            <ThemeToggle />
-            
-            {/* Commented out user authentication section */}
-            {/*
-            {user ? (
-              <div className="flex items-center space-x-2">
-                {avatarSrc && (
-                  <img 
-                    src={avatarSrc}
-                    alt={user.displayName || 'Utilisateur'}
-                    className="w-10 h-10 rounded-full" 
-                  />
-                )}
-                <span>{user.displayName || 'Utilisateur'}</span>
-                <Button 
-                  variant="destructive" 
-                  size="sm" 
-                  onClick={logout}
-                >
-                  <Icons.LogOut className="mr-2" /> Déconnexion
-                </Button>
-              </div>
-            ) : (
-              <Link href="/auth/login" className="login-button">
-                Connexion <Icons.LogOut />
-              </Link>
-            )}
-            */}
+
+          <div className="flex items-center justify-end gap-2 md:gap-4 flex-1">
+            <div className="flex items-center space-x-2 md:space-x-4">
+              <ThemeToggle />
+              {user && (
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="hidden md:flex items-center gap-3">
+                    {user.photoURL && (
+                      <img
+                        src={user.photoURL}
+                        alt={user.displayName || 'User'}
+                        className="w-8 h-8 rounded-full ring-2 ring-primary/20 shadow-md object-cover"
+                      />
+                    )}
+                    <span className="font-medium text-foreground/80">
+                      {user.displayName}
+                    </span>
+                  </div>
+                  <Button
+                    variant="destructive"
+                    onClick={logout}
+                    className="flex items-center gap-2 transition-all duration-200 hover:bg-destructive/90 active:scale-95"
+                    size="sm"
+                  >
+                    <Icons.LogOut className="h-4 w-4" />
+                    <span className="hidden md:inline">Déconnexion</span>
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </nav>
 
         {/* Main Content */}
-        <main className="main-content flex-1 p-4 overflow-auto">
-          {children}
-        </main>
+        <main className="flex-1 p-4 overflow-y-auto overflow-x-hidden">{children}</main>
 
         {/* Footer */}
         <Footer />
@@ -176,6 +173,14 @@ function MainLayoutContent({ children }: MainLayoutProps) {
 
       {/* Toast Notifications */}
       <Toaster />
+
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
+          onClick={toggleSidebar}
+        />
+      )}
     </div>
   );
 }

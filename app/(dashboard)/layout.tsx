@@ -1,36 +1,27 @@
 'use client'
 
-//import { redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import MainLayout from '@/components/layout/MainLayout'
-//import { getAuth, onAuthStateChanged } from 'firebase/auth'
-//import { initFirebase } from '@/lib/firebaseConfig'
-//import { useEffect, useState } from 'react'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
+import { initFirebase } from '@/lib/firebaseConfig'
+import { useEffect, useState } from 'react'
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  // Temporarily remove authentication checks
-  return (
-    <MainLayout>
-      {children}
-    </MainLayout>
-  );
-
-  // Commented out original authentication logic
-  /*
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Initialiser Firebase côté client
+        console.log('Initializing Firebase in Dashboard Layout');
         await initFirebase()
         
         const auth = getAuth()
+        console.log('Auth object:', auth);
         
-        // Vérifier l'état de l'authentification
         const unsubscribe = onAuthStateChanged(auth, (user) => {
           console.log('Dashboard Layout - User:', user)
           
@@ -41,36 +32,33 @@ export default function DashboardLayout({
             // Pas d'utilisateur connecté
             console.log('Pas d\'utilisateur connecté, redirection vers login')
             setIsAuthenticated(false)
+            redirect('/auth/login')
           }
         }, (error) => {
           console.error('Erreur de vérification d\'authentification:', error)
           setIsAuthenticated(false)
+          redirect('/auth/login')
         })
 
         // Nettoyer l'abonnement
         return () => unsubscribe()
       } catch (error) {
-        console.error('Erreur d\'initialisation:', error)
+        console.error('Erreur lors de l\'initialisation de Firebase:', error)
         setIsAuthenticated(false)
+        redirect('/auth/login')
       }
     }
 
     checkAuth()
   }, [])
 
-  // Gérer les différents états d'authentification
   if (isAuthenticated === null) {
-    return <div>Chargement de l'authentification...</div>
-  }
-
-  if (isAuthenticated === false) {
-    redirect('/auth/login')
+    return <div>Chargement...</div>
   }
 
   return (
     <MainLayout>
       {children}
     </MainLayout>
-  );
-  */
+  )
 }

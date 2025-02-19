@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
+import { useFirebaseAuth } from "../hooks/useFirebaseAuth";
 import Loading from "@/components/ui/loading"; // Mise à jour du chemin d'import
 
 interface ProtectedRouteProps {

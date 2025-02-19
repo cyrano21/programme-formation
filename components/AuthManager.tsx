@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useFirebaseAuth } from '@/hooks/useFirebaseAuth';
+import { useFirebaseAuth } from '../hooks/useFirebaseAuth';
 
 export default function AuthManager() {
   const { 
@@ -53,6 +53,7 @@ export default function AuthManager() {
         </div>
         <div className="auth-actions">
           <button 
+            type="button"
             onClick={signOut} 
             className="btn btn-danger"
           >

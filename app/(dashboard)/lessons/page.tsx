@@ -82,9 +82,9 @@ export default function Lessons() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-background/95">
       {/* Top Navigation */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white/95 shadow-sm border-b backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <span className="text-2xl font-bold text-primary">CoachVerse</span>
@@ -171,7 +171,7 @@ export default function Lessons() {
                 </div>
                 <Button 
                   variant="outline" 
-                  className="w-full group-hover:bg-primary group-hover:text-white transition-colors"
+                  className="w-full group-hover:bg-primary group-hover:text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 >
                   Commencer la Leçon
                 </Button>

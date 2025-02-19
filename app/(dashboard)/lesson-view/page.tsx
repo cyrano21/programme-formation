@@ -1,10 +1,16 @@
 'use client'
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import dynamic from 'next/dynamic';
+
+// Dynamically import components
+const Card = dynamic(() => import("@/components/ui/card").then(mod => ({ default: mod.Card })), { ssr: false });
+const CardContent = dynamic(() => import("@/components/ui/card").then(mod => ({ default: mod.CardContent })), { ssr: false });
+const CardHeader = dynamic(() => import("@/components/ui/card").then(mod => ({ default: mod.CardHeader })), { ssr: false });
+const CardTitle = dynamic(() => import("@/components/ui/card").then(mod => ({ default: mod.CardTitle })), { ssr: false });
+const Progress = dynamic(() => import("@/components/ui/progress").then(mod => ({ default: mod.Progress })), { ssr: false });
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Icons } from "@/utils/icons";
 import { programData } from "@/utils/modules-data";
 
@@ -13,12 +19,16 @@ export default function LessonView() {
   const moduleId = searchParams.get("moduleId");
   const lessonId = searchParams.get("lessonId");
 
-  // Trouver le module et la leçon
-  const module = programData
-    .flatMap((phase) => phase.modules)
-    .find((m) => m.id === moduleId);
+  // Memoize module and lesson data
+  const module = useMemo(() => {
+    return programData
+      .flatMap((phase) => phase.modules)
+      .find((m) => m.id === moduleId);
+  }, [moduleId]);
 
-  const lesson = module?.lessons?.find(l => l.id === lessonId);
+  const lesson = useMemo(() => {
+    return module?.lessons?.find(l => l.id === lessonId);
+  }, [module, lessonId]);
 
   if (!module || !lesson) {
     return (
@@ -37,9 +47,9 @@ export default function LessonView() {
   const [lessonProgress, setLessonProgress] = useState(lesson.progress || 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-background/95">
       {/* Top Navigation */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white/95 shadow-sm border-b backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <span className="text-2xl font-bold text-primary">CoachVerse</span>
@@ -84,13 +94,13 @@ export default function LessonView() {
         <div className="flex items-center justify-between mb-8">
           <Link href={`/module-detail?id=${moduleId}`}>
             <Button variant="outline" className="mb-4">
-              <Icons.ChevronLeft className="mr-2" /> Retour au module
+              <Icons.ChevronStart className="mr-2" /> Retour au module
             </Button>
           </Link>
         </div>
 
         <div className="space-y-8">
-          <div className="bg-white shadow-md rounded-lg p-6">
+          <div className="bg-white/95 shadow-md hover:shadow-xl rounded-lg p-6 transition-all duration-300 border border-primary/10">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h1 className="text-3xl font-bold text-primary">{lesson.title}</h1>
@@ -136,7 +146,7 @@ export default function LessonView() {
                   {lesson.exercises.map((exercise, index) => (
                     <div 
                       key={index} 
-                      className="p-4 bg-slate-50 rounded-lg"
+                      className="p-4 bg-slate-50 rounded-lg hover:bg-primary/5 transition-all duration-300 hover:shadow-md"
                     >
                       <h4 className="font-medium mb-2">{exercise.title}</h4>
                       <p className="text-sm text-muted-foreground">{exercise.description}</p>
@@ -160,7 +170,7 @@ export default function LessonView() {
           <div className="flex justify-end gap-4 mt-8">
             <Button 
               variant="outline" 
-              className="hover:bg-slate-100"
+              className="hover:bg-primary/10 transition-all duration-300 hover:scale-105"
               onClick={() => {
                 // Logique pour marquer la leçon comme terminée
                 setLessonProgress(100);
@@ -169,14 +179,14 @@ export default function LessonView() {
               Marquer comme terminé
             </Button>
             <Button 
-              className="bg-primary hover:bg-primary/90 text-white"
+              className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
               onClick={() => {
                 // Logique pour passer à la leçon suivante
                 console.log('Passer à la leçon suivante');
               }}
             >
               Leçon suivante
-              <Icons.ArrowRight className="ml-2" />
+              <Icons.ArrowEnd className="ml-2" />
             </Button>
           </div>
         </div>

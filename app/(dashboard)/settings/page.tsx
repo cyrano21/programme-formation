@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useTheme } from '@/contexts/ThemeContext'
 import { toast } from "sonner";
-import { useFirebaseAuth } from '@/hooks/useFirebaseAuth';
+import { useFirebaseAuth } from '../../../hooks/useFirebaseAuth';
 
 // Types
 type NotificationPreferences = {
