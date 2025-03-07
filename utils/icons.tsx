@@ -55,6 +55,7 @@ export const Icons = {
   Loader: createDynamicIconComponent('Loader'),
   Activity: createDynamicIconComponent('Activity'),
   ArrowEnd: createDynamicIconComponent('ArrowRight'),
+  ArrowStart: createDynamicIconComponent('ArrowLeft'),
   Plus: createDynamicIconComponent('Plus'),
   Lock: createDynamicIconComponent('Lock'),
   CheckCircle: createDynamicIconComponent('CheckCircle'),

@@ -1,3 +1,43 @@
+.themeVariables {
+  /* Class to apply theme variables */
+  display: contents;
+  
+  /* Theme color variables */
+  --indigo-bg: #4f46e5;
+  --indigo-bg-active: #4338ca;
+  --indigo-light: #e0e7ff;
+  --indigo-ring: #818cf8;
+  --indigo-dark: #3730a3;
+  --indigo-text: #4f46e5;
+  
+  --emerald-bg: #059669;
+  --emerald-bg-active: #047857;
+  --emerald-light: #d1fae5;
+  --emerald-ring: #34d399;
+  --emerald-dark: #065f46;
+  --emerald-text: #059669;
+  
+  --violet-bg: #7c3aed;
+  --violet-bg-active: #6d28d9;
+  --violet-light: #ede9fe;
+  --violet-ring: #a78bfa;
+  --violet-dark: #5b21b6;
+  --violet-text: #7c3aed;
+  
+  --rose-bg: #e11d48;
+  --rose-bg-active: #be123c;
+  --rose-light: #ffe4e6;
+  --rose-ring: #fb7185;
+  --rose-dark: #9f1239;
+  --rose-text: #e11d48;
+  
+  /* Root variables that might be causing the issue */
+  --primary: var(--indigo-bg);
+  --primary-hover: var(--indigo-bg-active);
+  --background: #ffffff;
+  --foreground: #0f172a;
+}
+
 .themeToggle {
   transition: all 0.3s ease;
 }
@@ -36,4 +76,73 @@
 
 .colorIndicator {
   background-color: var(--color-dot);
+}
+
+/* Color button styles for each theme */
+.colorButton-indigo {
+  --color-bg: var(--indigo-light);
+  --color-border: var(--indigo-ring);
+  --color-text: var(--indigo-text);
+}
+
+.colorButton-indigo-active {
+  --color-bg: var(--indigo-bg);
+  --color-border: var(--indigo-ring);
+  --color-text: #ffffff;
+}
+
+.colorButton-emerald {
+  --color-bg: var(--emerald-light);
+  --color-border: var(--emerald-ring);
+  --color-text: var(--emerald-dark);
+}
+
+.colorButton-emerald-active {
+  --color-bg: var(--emerald-bg);
+  --color-border: var(--emerald-ring);
+  --color-text: #ffffff;
+}
+
+.colorButton-violet {
+  --color-bg: var(--violet-light);
+  --color-border: var(--violet-ring);
+  --color-text: var(--violet-dark);
+}
+
+.colorButton-violet-active {
+  --color-bg: var(--violet-bg);
+  --color-border: var(--violet-ring);
+  --color-text: #ffffff;
+}
+
+.colorButton-rose {
+  --color-bg: var(--rose-light);
+  --color-border: var(--rose-ring);
+  --color-text: var(--rose-dark);
+}
+
+.colorButton-rose-active {
+  --color-bg: var(--rose-bg);
+  --color-border: var(--rose-ring);
+  --color-text: #ffffff;
+}
+
+.colorDot-indigo {
+  --color-dot: var(--indigo-bg);
+}
+
+.colorDot-emerald {
+  --color-dot: var(--emerald-bg);
+}
+
+.colorDot-violet {
+  --color-dot: var(--violet-bg);
+}
+
+.colorDot-rose {
+  --color-dot: var(--rose-bg);
+}
+
+.hidden {
+  display: none;
 }

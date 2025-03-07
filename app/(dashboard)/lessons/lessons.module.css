@@ -1,0 +1,35 @@
+.searchFiltersContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  margin-block-end: 2rem;
+  transition: all 0.3s ease;
+  animation-delay: 100ms;
+}
+
+.delay-200ms {
+  animation-delay: 200ms;
+}
+
+/* Animation delays for lesson cards */
+.lessonCard-0 {
+  animation-delay: 150ms;
+}
+
+.lessonCard-1 {
+  animation-delay: 200ms;
+}
+
+.lessonCard-2 {
+  animation-delay: 250ms;
+}
+
+.lessonCard-3 {
+  animation-delay: 300ms;
+}
+
+.lessonCard-4 {
+  animation-delay: 350ms;
+}

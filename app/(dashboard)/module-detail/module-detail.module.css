@@ -1,0 +1,42 @@
+.moduleOverview {
+  animation-delay: 100ms;
+}
+
+.tabsContainer {
+  animation-delay: 200ms;
+}
+
+.overviewTab {
+  animation-delay: 250ms;
+}
+
+.themesTab {
+  animation-delay: 300ms;
+}
+
+.competenciesTab {
+  animation-delay: 350ms;
+}
+
+/* Animation delays for theme items */
+.themeItem-0 { animation-delay: 350ms; }
+.themeItem-1 { animation-delay: 400ms; }
+.themeItem-2 { animation-delay: 450ms; }
+.themeItem-3 { animation-delay: 500ms; }
+.themeItem-4 { animation-delay: 550ms; }
+
+/* Animation delays for competency items */
+.competencyItem-0 { animation-delay: 400ms; }
+.competencyItem-1 { animation-delay: 430ms; }
+.competencyItem-2 { animation-delay: 460ms; }
+.competencyItem-3 { animation-delay: 490ms; }
+.competencyItem-4 { animation-delay: 520ms; }
+.competencyItem-5 { animation-delay: 550ms; }
+.competencyItem-6 { animation-delay: 580ms; }
+.competencyItem-7 { animation-delay: 610ms; }
+.competencyItem-8 { animation-delay: 640ms; }
+.competencyItem-9 { animation-delay: 670ms; }
+
+.actionButtons {
+  animation-delay: 400ms;
+}

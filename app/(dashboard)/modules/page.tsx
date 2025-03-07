@@ -81,7 +81,7 @@ export default function Modules() {
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-heading font-bold mb-6 md:mb-8 text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary/90 to-accent animate-gradient-x">
             Programme Holistique de Transformation
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto px-4 font-light leading-relaxed text-balance animate-fade-in" style={{animationDelay: '200ms'}}>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto px-4 font-light leading-relaxed text-balance animate-fade-in delay-200">
             Un parcours immersif de 12 mois conçu pour catalyser votre évolution
             personnelle et professionnelle à travers une approche intégrative et
             transformationnelle
@@ -97,9 +97,13 @@ export default function Modules() {
                 styles[`delay-phase-${phaseIndex}`]
               }`}
             >
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-6 animate-slide-up" style={{animationDelay: `${phaseIndex * 100}ms`}}>
+              <div
+                className={`flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-6 animate-slide-up ${
+                  styles[`phase-delay-${phaseIndex}`]
+                }`}
+              >
                 <div className="flex-1">
-                  <h2 className="text-2xl md:text-3xl font-heading font-bold mb-3 md:mb-4 text-primary bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+                  <h2 className="text-2xl md:text-3xl font-heading font-bold mb-3 md:mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
                     {phase.title}
                   </h2>
                   <p className="text-base md:text-lg text-muted-foreground max-w-3xl text-pretty">
@@ -120,10 +124,9 @@ export default function Modules() {
                     key={module.id}
                     className={`${
                       styles.moduleCard
-                    } card-hover-effect relative overflow-hidden hover:shadow-xl transition-all duration-500 border-2 border-transparent hover:border-primary/30 group ${
-                      styles[`delay-phase-module-${phaseIndex}-${moduleIndex}`]
-                    } animate-slide-up backdrop-blur-sm`}
-                    style={{animationDelay: `${(phaseIndex * 200) + (moduleIndex * 100)}ms`}}
+                    } card-hover-effect relative overflow-hidden hover:shadow-xl transition-all duration-500 border-2 border-transparent hover:border-primary/30 group animate-slide-up backdrop-blur-sm ${
+                      styles[`module-delay-${phaseIndex}-${moduleIndex}`]
+                    }`}
                   >
                     {/* Progress indicator */}
                     <div className={styles.progressBar}>

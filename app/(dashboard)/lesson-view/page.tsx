@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/utils/icons';
 import { programData } from '@/utils/modules-data';
@@ -12,6 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import styles from './lesson-view.module.css';
 
 export default function LessonView() {
+  const router = useRouter();
   const searchParams = new URLSearchParams(
     typeof window !== 'undefined' ? window.location.search : ''
   );
@@ -28,6 +30,54 @@ export default function LessonView() {
   const lesson = useMemo(() => {
     return module?.lessons?.find((l) => l.id === lessonId);
   }, [module, lessonId]);
+
+  // Find the index of the current lesson in the module's lessons array
+  const currentLessonIndex = useMemo(() => {
+    if (!module?.lessons || !lessonId) return -1;
+    return module.lessons.findIndex((l) => l.id === lessonId);
+  }, [module, lessonId]);
+
+  // Determine if there is a next lesson
+  const hasNextLesson = useMemo(() => {
+    if (!module?.lessons) return false;
+    return currentLessonIndex < module.lessons.length - 1;
+  }, [module, currentLessonIndex]);
+
+  // Get the next lesson if it exists
+  const nextLesson = useMemo(() => {
+    if (!hasNextLesson || !module?.lessons) return null;
+    return module.lessons[currentLessonIndex + 1];
+  }, [hasNextLesson, module, currentLessonIndex]);
+
+  // Function to navigate to the next lesson
+  const goToNextLesson = useCallback(() => {
+    if (nextLesson && moduleId) {
+      router.replace(
+        `/lesson-view?moduleId=${moduleId}&lessonId=${nextLesson.id}`
+      );
+    }
+  }, [nextLesson, moduleId, router]);
+
+  // Determine if there is a previous lesson
+  const hasPreviousLesson = useMemo(() => {
+    if (!module?.lessons) return false;
+    return currentLessonIndex > 0;
+  }, [module, currentLessonIndex]);
+
+  // Get the previous lesson if it exists
+  const previousLesson = useMemo(() => {
+    if (!hasPreviousLesson || !module?.lessons) return null;
+    return module.lessons[currentLessonIndex - 1];
+  }, [hasPreviousLesson, module, currentLessonIndex]);
+
+  // Function to navigate to the previous lesson
+  const goToPreviousLesson = useCallback(() => {
+    if (previousLesson && moduleId) {
+      router.replace(
+        `/lesson-view?moduleId=${moduleId}&lessonId=${previousLesson.id}`
+      );
+    }
+  }, [previousLesson, moduleId, router]);
 
   if (!module || !lesson) {
     return (
@@ -232,29 +282,40 @@ export default function LessonView() {
           )}
 
           <div
-            className={`flex justify-end gap-4 mt-8 animate-slide-up ${styles.actionButtons}`}
+            className={`flex justify-between gap-4 mt-8 animate-slide-up ${styles.actionButtons}`}
           >
             <Button
-              variant="outline"
-              className="hover:bg-primary/10 transition-all duration-300 hover:scale-105 border-primary/20 hover:border-primary/40 hover:shadow-md"
-              onClick={() => {
-                // Logique pour marquer la leçon comme terminée
-                setLessonProgress(100);
-              }}
-            >
-              <Icons.CheckCircle className="mr-2 h-4 w-4" />
-              Marquer comme terminé
-            </Button>
-            <Button
               className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg group"
-              onClick={() => {
-                // Logique pour passer à la leçon suivante
-                console.log('Passer à la leçon suivante');
-              }}
+              onClick={goToPreviousLesson}
+              disabled={!hasPreviousLesson}
+              title={!hasPreviousLesson ? 'Première leçon du module' : ''}
             >
-              Leçon suivante
-              <Icons.ArrowEnd className="ml-2 group-hover:translate-x-1 transition-transform" />
+              {/* Using ArrowLeft icon for previous lesson navigation */}
+              <Icons.ArrowStart className="mr-2 group-hover:-translate-x-1 transition-transform" />
+              Leçon précédente
             </Button>
+            <div className="flex gap-4">
+              <Button
+                variant="outline"
+                className="hover:bg-primary/10 transition-all duration-300 hover:scale-105 border-primary/20 hover:border-primary/40 hover:shadow-md"
+                onClick={() => {
+                  // Logique pour marquer la leçon comme terminée
+                  setLessonProgress(100);
+                }}
+              >
+                <Icons.CheckCircle className="mr-2 h-4 w-4" />
+                Marquer comme terminé
+              </Button>
+              <Button
+                className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg group"
+                onClick={goToNextLesson}
+                disabled={!hasNextLesson}
+                title={!hasNextLesson ? 'Dernière leçon du module' : ''}
+              >
+                Leçon suivante
+                <Icons.ArrowEnd className="ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </div>
           </div>
         </div>
       </main>

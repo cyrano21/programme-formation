@@ -170,6 +170,7 @@ const getThemeVariables = (theme: Theme, color: Color) => {
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  // Add a hidden div with the themeVariables class to apply CSS variables globally
   // Initialize theme from localStorage only once
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
@@ -257,6 +258,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <ThemeContext.Provider value={contextValue}>
+      <div
+        className={`${styles.themeVariables}`}
+        data-testid="theme-variables"
+      />
       {children}
     </ThemeContext.Provider>
   );
@@ -275,40 +280,8 @@ export const ThemeToggle: React.FC = () => {
 
   const colorOptions: Color[] = ['indigo', 'emerald', 'violet', 'rose'];
 
-  // Color map for direct access to color values
-  const colorMap = {
-    indigo: {
-      bg: '#4f46e5',
-      light: '#e0e7ff',
-      medium: '#818cf8',
-      dark: '#4338ca',
-      ring: '#6366f1',
-    },
-    emerald: {
-      bg: '#059669',
-      light: '#d1fae5',
-      medium: '#34d399',
-      dark: '#047857',
-      ring: '#10b981',
-    },
-    violet: {
-      bg: '#7c3aed',
-      light: '#ede9fe',
-      medium: '#a78bfa',
-      dark: '#6d28d9',
-      ring: '#8b5cf6',
-    },
-    rose: {
-      bg: '#e11d48',
-      light: '#ffe4e6',
-      medium: '#fb7185',
-      dark: '#be123c',
-      ring: '#f43f5e',
-    },
-  };
-
   return (
-    <div className="theme-controls flex items-center space-x-2">
+    <div className={`theme-controls flex items-center space-x-2 ${styles.themeVariables}`}>
       <div className="theme-toggle">
         <button
           type="button"
@@ -336,7 +309,6 @@ export const ThemeToggle: React.FC = () => {
 
       <div className="color-palette flex items-center space-x-4">
         {colorOptions.map((colorOption) => {
-          const colorStyles = colorMap[colorOption];
           return (
             <button
               key={colorOption}
@@ -345,27 +317,26 @@ export const ThemeToggle: React.FC = () => {
                 backdrop-blur-sm shadow-md hover:shadow-lg active:scale-95
                 ${styles.colorButtonBackground}
                 ${
+                  styles[
+                    `colorButton-${colorOption}${
+                      color === colorOption ? '-active' : ''
+                    }`
+                  ]
+                }
+                ${
                   color === colorOption
                     ? 'ring-2 scale-110 hover:ring-offset-2'
                     : 'hover:scale-105 hover:ring-2'
                 }
                 transform hover:rotate-45
               `}
-              style={
-                {
-                  '--color-bg':
-                    color === colorOption ? colorStyles.bg : colorStyles.light,
-                  '--color-border': colorStyles.ring,
-                  '--color-text':
-                    color === colorOption ? '#ffffff' : colorStyles.dark,
-                } as React.CSSProperties
-              }
               onClick={() => setColor(colorOption)}
               aria-label={`${colorOption} theme`}
             >
               <span
-                className={`block w-3 h-3 rounded-full ${styles.colorIndicator}`}
-                style={{ '--color-dot': colorStyles.bg } as React.CSSProperties}
+                className={`block w-3 h-3 rounded-full ${
+                  styles.colorIndicator
+                } ${styles[`colorDot-${colorOption}`]}`}
               ></span>
             </button>
           );

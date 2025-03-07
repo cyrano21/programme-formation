@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Icons } from '@/utils/icons';
 import { Progress } from '@/components/ui/progress';
+import styles from './lessons.module.css';
 
 type Lesson = {
   id: string;
@@ -97,31 +98,31 @@ export default function Lessons() {
             <nav className="hidden md:flex gap-6 ml-8">
               <a
                 href="/dashboard"
-                className="text-sm font-medium hover:text-primary transition-colors hover:scale-105 transition-transform duration-200"
+                className="text-sm font-medium hover:text-primary hover:scale-105 transition-all duration-200"
               >
                 Dashboard
               </a>
               <a
                 href="/modules"
-                className="text-sm font-medium hover:text-primary transition-colors hover:scale-105 transition-transform duration-200"
+                className="text-sm font-medium hover:text-primary hover:scale-105 transition-all duration-200"
               >
                 Modules
               </a>
               <a
                 href="/tools"
-                className="text-sm font-medium hover:text-primary transition-colors hover:scale-105 transition-transform duration-200"
+                className="text-sm font-medium hover:text-primary hover:scale-105 transition-all duration-200"
               >
                 Tools
               </a>
               <a
                 href="/lessons"
-                className="text-sm font-medium text-primary border-b-2 border-primary hover:scale-105 transition-transform duration-200"
+                className="text-sm font-medium text-primary border-b-2 border-primary hover:scale-105 transition-all duration-200"
               >
                 Lessons
               </a>
               <a
                 href="/assessments"
-                className="text-sm font-medium hover:text-primary transition-colors hover:scale-105 transition-transform duration-200"
+                className="text-sm font-medium hover:text-primary hover:scale-105 transition-all duration-200"
               >
                 Progress
               </a>
@@ -159,8 +160,7 @@ export default function Lessons() {
 
         {/* Search and Filters */}
         <div
-          className="mb-12 space-y-8 animate-slide-up"
-          style={{ animationDelay: '100ms' }}
+          className={`mb-12 space-y-8 animate-slide-up ${styles.searchFiltersContainer}`}
         >
           <div className="max-w-xl mx-auto relative group">
             <Input
@@ -195,61 +195,65 @@ export default function Lessons() {
 
         {/* Lessons Grid */}
         <div
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in"
-          style={{ animationDelay: '200ms' }}
+          className={`grid md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in ${styles['delay-200ms']}`}
         >
-          {filteredLessons.map((lesson, index) => (
-            <Card
-              key={lesson.id}
-              className={`group hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-primary/30 rounded-xl overflow-hidden backdrop-blur-sm animate-slide-up`}
-              style={{ animationDelay: `${150 + index * 50}ms` }}
-            >
-              <CardHeader className="pb-4 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="flex justify-between items-center relative z-10">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-primary/10 p-3.5 rounded-full shadow-sm group-hover:shadow-md group-hover:bg-primary/15 transition-all duration-300 group-hover:scale-110">
-                      <div className="text-primary group-hover:text-primary/90 transition-colors duration-300 transform group-hover:rotate-6">
-                        {lesson.icon}
+          {filteredLessons.map((lesson, index) => {
+            // Ensure we use all CSS classes by cycling through them
+            const cardIndex = index % 5; // Use modulo to cycle through 0-4 indexes
+            return (
+              <Card
+                key={lesson.id}
+                className={`group hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-primary/30 rounded-xl overflow-hidden backdrop-blur-sm animate-slide-up ${
+                  styles[`lessonCard-${cardIndex}`] || ''
+                }`}
+              >
+                <CardHeader className="pb-4 relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="flex justify-between items-center relative z-10">
+                    <div className="flex items-center gap-4">
+                      <div className="bg-primary/10 p-3.5 rounded-full shadow-sm group-hover:shadow-md group-hover:bg-primary/15 transition-all duration-300 group-hover:scale-110">
+                        <div className="text-primary group-hover:text-primary/90 transition-colors duration-300 transform group-hover:rotate-6">
+                          {lesson.icon}
+                        </div>
                       </div>
+                      <CardTitle className="text-lg font-semibold group-hover:text-primary transition-colors duration-300">
+                        {lesson.title}
+                      </CardTitle>
                     </div>
-                    <CardTitle className="text-lg font-semibold group-hover:text-primary transition-colors duration-300">
-                      {lesson.title}
-                    </CardTitle>
-                  </div>
-                  <span className="text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-full font-medium shadow-sm group-hover:shadow group-hover:bg-primary/15 transition-all duration-300">
-                    {lesson.category}
-                  </span>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-2">
-                <p className="text-sm text-muted-foreground mb-6 min-h-[3rem] group-hover:text-foreground/80 transition-colors duration-300">
-                  {lesson.description}
-                </p>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
-                      {lesson.module} • {lesson.duration}
-                    </span>
-                    <span className="text-xs font-semibold text-primary">
-                      {lesson.progress}% Complété
+                    <span className="text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-full font-medium shadow-sm group-hover:shadow group-hover:bg-primary/15 transition-all duration-300">
+                      {lesson.category}
                     </span>
                   </div>
-                  <Progress
-                    value={lesson.progress}
-                    className="h-1.5 bg-primary/10"
-                  />
-                  <Button
-                    variant="outline"
-                    className="w-full mt-4 group-hover:bg-primary group-hover:text-white transition-all duration-500 hover:scale-105 hover:shadow-lg rounded-lg border-primary/20 hover:border-primary/50"
-                  >
-                    <Icons.Play className="mr-2 h-4 w-4 group-hover:animate-pulse" />
-                    Commencer la Leçon
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardHeader>
+                <CardContent className="pt-2">
+                  <p className="text-sm text-muted-foreground mb-6 min-h-[3rem] group-hover:text-foreground/80 transition-colors duration-300">
+                    {lesson.description}
+                  </p>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
+                        {lesson.module} • {lesson.duration}
+                      </span>
+                      <span className="text-xs font-semibold text-primary">
+                        {lesson.progress}% Complété
+                      </span>
+                    </div>
+                    <Progress
+                      value={lesson.progress}
+                      className="h-1.5 bg-primary/10"
+                    />
+                    <Button
+                      variant="outline"
+                      className="w-full mt-4 group-hover:bg-primary group-hover:text-white transition-all duration-500 hover:scale-105 hover:shadow-lg rounded-lg border-primary/20 hover:border-primary/50"
+                    >
+                      <Icons.Play className="mr-2 h-4 w-4 group-hover:animate-pulse" />
+                      Commencer la Leçon
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         {filteredLessons.length === 0 && (

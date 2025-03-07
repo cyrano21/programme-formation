@@ -152,3 +152,36 @@
 .delay-phase-module-4-0 { animation-delay: 600ms; }
 .delay-phase-module-4-1 { animation-delay: 700ms; }
 .delay-phase-module-4-2 { animation-delay: 800ms; }
+
+/* Additional animation delay classes */
+.delay-200 { animation-delay: 200ms; }
+
+/* Animation delay classes for phase items */
+.phase-delay-0 { animation-delay: 0ms; }
+.phase-delay-1 { animation-delay: 100ms; }
+.phase-delay-2 { animation-delay: 200ms; }
+.phase-delay-3 { animation-delay: 300ms; }
+.phase-delay-4 { animation-delay: 400ms; }
+.phase-delay-5 { animation-delay: 500ms; }
+
+/* Animation delay classes for module items with combined phase and module index */
+.module-delay-0-0 { animation-delay: 0ms; }
+.module-delay-0-1 { animation-delay: 100ms; }
+.module-delay-0-2 { animation-delay: 200ms; }
+.module-delay-0-3 { animation-delay: 300ms; }
+.module-delay-1-0 { animation-delay: 200ms; }
+.module-delay-1-1 { animation-delay: 300ms; }
+.module-delay-1-2 { animation-delay: 400ms; }
+.module-delay-1-3 { animation-delay: 500ms; }
+.module-delay-2-0 { animation-delay: 400ms; }
+.module-delay-2-1 { animation-delay: 500ms; }
+.module-delay-2-2 { animation-delay: 600ms; }
+.module-delay-2-3 { animation-delay: 700ms; }
+.module-delay-3-0 { animation-delay: 600ms; }
+.module-delay-3-1 { animation-delay: 700ms; }
+.module-delay-3-2 { animation-delay: 800ms; }
+.module-delay-3-3 { animation-delay: 900ms; }
+.module-delay-4-0 { animation-delay: 800ms; }
+.module-delay-4-1 { animation-delay: 900ms; }
+.module-delay-4-2 { animation-delay: 1000ms; }
+.module-delay-4-3 { animation-delay: 1100ms; }
