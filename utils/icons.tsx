@@ -1,16 +1,5 @@
 import * as React from 'react';
-import * as LucideIcons from 'lucide-react';
-
-// Explicitly define the type of LucideIcons
-type LucideIconComponent = React.ComponentType<{
-  size?: number;
-  strokeWidth?: number;
-  color?: string;
-  className?: string;
-}>;
-
-// Create a type that allows any string key
-type IconName = string & keyof typeof LucideIcons;
+import dynamic from 'next/dynamic';
 
 // Interface for icon props
 interface IconProps {
@@ -20,69 +9,78 @@ interface IconProps {
   className?: string;
 }
 
-// Utility function to create icon components with type assertion
-const createIconComponent = (name: string) => {
-  // Type assertion to bypass strict type checking
-  const IconComponent = LucideIcons[name as IconName] as LucideIconComponent;
-
-  return (props?: IconProps) => {
-    if (!IconComponent) {
-      console.warn(`Icon ${name} not found`);
-      return null;
+// Dynamic import function for Lucide icons
+const createDynamicIconComponent = (iconName: string) => {
+  return dynamic<IconProps>(
+    () =>
+      import('lucide-react').then((mod) => {
+        const Icon = mod[iconName as keyof typeof mod];
+        if (!Icon) {
+          console.warn(`Icon ${iconName} not found`);
+          // Return a component that renders null
+          return React.memo(() => null) as React.ComponentType<IconProps>;
+        }
+        return Icon as React.ComponentType<IconProps>;
+      }),
+    {
+      ssr: false,
+      loading: () => <span className="icon-loading w-4 h-4"></span>,
     }
-
-    return React.createElement(IconComponent, props as any);
-  };
+  );
 };
 
-// Export commonly used icons
+// Export commonly used icons with lazy loading
 export const Icons = {
-  BookOpen: createIconComponent('BookOpen'),
-  Book: createIconComponent('Book'),
-  Layers: createIconComponent('Layers'),
-  Award: createIconComponent('Award'),
-  TrendingUp: createIconComponent('TrendingUp'),
-  Users: createIconComponent('Users'),
-  Calendar: createIconComponent('Calendar'),
-  Menu: createIconComponent('Menu'),
-  Home: createIconComponent('Home'),
-  User: createIconComponent('User'),
-  Settings: createIconComponent('Settings'),
-  HelpCircle: createIconComponent('HelpCircle'),
-  LogOut: createIconComponent('LogOut'),
-  FileText: createIconComponent('FileText'),
-  Video: createIconComponent('Video'),
-  Download: createIconComponent('Download'),
-  ChevronStart: createIconComponent('ChevronLeft'),
-  ChevronEnd: createIconComponent('ChevronRight'),
-  AlertTriangle: createIconComponent('AlertTriangle'),
-  RefreshCw: createIconComponent('RefreshCw'),
-  MessageCircle: createIconComponent('MessageCircle'),
-  Loader: createIconComponent('Loader'),
-  Activity: createIconComponent('Activity'),
-  ArrowEnd: createIconComponent('ArrowRight'),
-  Plus: createIconComponent('Plus'),
-  Lock: createIconComponent('Lock'),
-  CheckCircle: createIconComponent('CheckCircle'),
-  Search: createIconComponent('Search'),
-  AlertCircle: createIconComponent('AlertCircle'),
-  Save: createIconComponent('Save'),
-  Mail: createIconComponent('Mail'),
-  AlertOctagon: createIconComponent('AlertOctagon'),
-  LogIn: createIconComponent('LogIn'),
-  UserPlus: createIconComponent('UserPlus'),
-  Clock: createIconComponent('Clock'),
-  Star: createIconComponent('Star'),
-  ChevronDown: createIconComponent('ChevronDown'),
-  X: createIconComponent('X'),
-  Check: createIconComponent('Check'),
-  Phone: createIconComponent('Phone'),
-  Moon: createIconComponent('Moon'),
-  Sun: createIconComponent('Sun'),
-  Palette: createIconComponent('Palette'),
-  Contrast: createIconComponent('Contrast'),
-  BarChart2: createIconComponent('BarChart2'),
-  Play: createIconComponent('Play'),
+  BookOpen: createDynamicIconComponent('BookOpen'),
+  Book: createDynamicIconComponent('Book'),
+  Layers: createDynamicIconComponent('Layers'),
+  Award: createDynamicIconComponent('Award'),
+  TrendingUp: createDynamicIconComponent('TrendingUp'),
+  Users: createDynamicIconComponent('Users'),
+  Calendar: createDynamicIconComponent('Calendar'),
+  Menu: createDynamicIconComponent('Menu'),
+  Home: createDynamicIconComponent('Home'),
+  User: createDynamicIconComponent('User'),
+  Settings: createDynamicIconComponent('Settings'),
+  HelpCircle: createDynamicIconComponent('HelpCircle'),
+  LogOut: createDynamicIconComponent('LogOut'),
+  FileText: createDynamicIconComponent('FileText'),
+  Video: createDynamicIconComponent('Video'),
+  Download: createDynamicIconComponent('Download'),
+  ChevronStart: createDynamicIconComponent('ChevronLeft'),
+  ChevronEnd: createDynamicIconComponent('ChevronRight'),
+  AlertTriangle: createDynamicIconComponent('AlertTriangle'),
+  RefreshCw: createDynamicIconComponent('RefreshCw'),
+  MessageCircle: createDynamicIconComponent('MessageCircle'),
+  Loader: createDynamicIconComponent('Loader'),
+  Activity: createDynamicIconComponent('Activity'),
+  ArrowEnd: createDynamicIconComponent('ArrowRight'),
+  Plus: createDynamicIconComponent('Plus'),
+  Lock: createDynamicIconComponent('Lock'),
+  CheckCircle: createDynamicIconComponent('CheckCircle'),
+  Search: createDynamicIconComponent('Search'),
+  AlertCircle: createDynamicIconComponent('AlertCircle'),
+  Save: createDynamicIconComponent('Save'),
+  Mail: createDynamicIconComponent('Mail'),
+  AlertOctagon: createDynamicIconComponent('AlertOctagon'),
+  LogIn: createDynamicIconComponent('LogIn'),
+  UserPlus: createDynamicIconComponent('UserPlus'),
+  Clock: createDynamicIconComponent('Clock'),
+  Star: createDynamicIconComponent('Star'),
+  ChevronDown: createDynamicIconComponent('ChevronDown'),
+  X: createDynamicIconComponent('X'),
+  Check: createDynamicIconComponent('Check'),
+  Phone: createDynamicIconComponent('Phone'),
+  Moon: createDynamicIconComponent('Moon'),
+  Sun: createDynamicIconComponent('Sun'),
+  Palette: createDynamicIconComponent('Palette'),
+  Contrast: createDynamicIconComponent('Contrast'),
+  BarChart2: createDynamicIconComponent('BarChart2'),
+  Play: createDynamicIconComponent('Play'),
+  Zap: createDynamicIconComponent('Zap'),
+  Bell: createDynamicIconComponent('Bell'),
+  Tool: createDynamicIconComponent('Tool'),
+  Eye: createDynamicIconComponent('Eye'),
   Google: (props?: { className?: string }) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"

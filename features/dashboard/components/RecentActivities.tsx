@@ -42,23 +42,47 @@ const activities: Activity[] = [
 
 export function RecentActivities() {
   return (
-    <section className="recent-activities space-y-6">
-      <h2 className="text-2xl font-bold">Activités Récentes</h2>
-      <div className="grid md:grid-cols-3 gap-4">
+    <section className="bg-card/95 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-border/50 hover:shadow-xl transition-all duration-300">
+      <h2 className="text-xl font-bold text-foreground mb-6 flex items-center">
+        <Icons.Clock className="h-5 w-5 mr-2 text-primary" />
+        Activités Récentes
+      </h2>
+      <div className="space-y-4">
         {activities.map((activity, index) => {
           const IconComponent = Icons[activity.icon];
+          
+          // Determine color based on activity type
+          const getTypeColor = (type: string) => {
+            switch(type) {
+              case 'module': return 'bg-primary/10 text-primary';
+              case 'quiz': return 'bg-primary/10 text-primary';
+              case 'coaching': return 'bg-primary/10 text-primary';
+              default: return 'bg-primary/5 text-primary/80';
+            }
+          };
+          
+          const typeColorClass = getTypeColor(activity.type);
+          
           return (
-            <div key={index} className="rounded-lg border bg-card text-card-foreground shadow-sm">
-              <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
-                <h3 className="tracking-tight text-sm font-medium">{activity.title}</h3>
-                {IconComponent && <IconComponent />}
-              </div>
-              <div className="p-6 pt-0">
-                <div className="text-sm text-muted-foreground">{activity.description}</div>
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-xs text-muted-foreground">{activity.timeAgo}</span>
-                  <div className="relative h-4 overflow-hidden rounded-full bg-secondary w-1/2">
-                    <Progress value={activity.progress} className="h-full" />
+            <div key={index} className="p-4 rounded-lg border border-border hover:border-border/80 hover:bg-accent/50 hover:shadow-md transition-all duration-300">
+              <div className="flex items-start">
+                <div className={`p-3 rounded-full ${typeColorClass.split(' ')[0]} shadow-sm`}>
+                  {IconComponent && <IconComponent className={`h-5 w-5 ${typeColorClass.split(' ')[1]}`} />}
+                </div>
+                <div className="ml-4 flex-1">
+                  <div className="flex justify-between items-start">
+                    <h3 className="font-semibold text-foreground">{activity.title}</h3>
+                    <span className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded-full font-medium">{activity.timeAgo}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">{activity.description}</p>
+                  <div className="mt-3">
+                    <div className="flex items-center gap-2">
+                      <Progress 
+                        value={activity.progress} 
+                        className="h-2 flex-1 bg-primary/10" 
+                      />
+                      <span className="text-xs font-medium text-muted-foreground">{activity.progress}%</span>
+                    </div>
                   </div>
                 </div>
               </div>

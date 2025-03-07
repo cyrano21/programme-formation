@@ -1,0 +1,19 @@
+/* Local classes for animation delays */
+.toolCard0 { animation-delay: 150ms; }
+.toolCard1 { animation-delay: 200ms; }
+.toolCard2 { animation-delay: 250ms; }
+.toolCard3 { animation-delay: 300ms; }
+.toolCard4 { animation-delay: 350ms; }
+.toolCard5 { animation-delay: 400ms; }
+
+.searchFiltersContainer {
+  animation-delay: 100ms;
+}
+
+.toolsGrid {
+  animation-delay: 200ms;
+}
+
+.toolCard {
+  animation-delay: var(--animation-delay, 0ms);
+}

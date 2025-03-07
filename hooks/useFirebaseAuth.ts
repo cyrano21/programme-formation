@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   User,
-  getAuth,
   signOut,
   signInWithPopup,
   GoogleAuthProvider,
@@ -11,140 +10,175 @@ import {
   updateEmail as updateFirebaseEmail
 } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import { firebaseClient } from '@/lib/firebaseClient';
 
 export function useFirebaseAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const auth = getAuth();
+  
+  // Initialize Firebase client and get auth instance
+  const auth = useMemo(async () => {
+    try {
+      // Initialize Firebase using singleton pattern
+      const client = await firebaseClient.initialize();
+      if (!client.auth) {
+        throw new Error('Failed to initialize Firebase authentication');
+      }
+      return client.auth;
+    } catch (error) {
+      console.error('Error initializing Firebase:', error);
+      setError(error as Error);
+      return null;
+    }
+  }, []);
+
   const router = useRouter();
 
+  // Set up auth state listener with proper cleanup
   useEffect(() => {
-    // Subscribe to auth state changes
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        setUser(user);
-      } else {
-        setUser(null);
+    const initAuth = async () => {
+      const authInstance = await auth;
+      if (!authInstance) {
+        setLoading(false);
+        setError(new Error('Firebase authentication not initialized'));
+        return;
       }
-      setLoading(false);
+
+      // Subscribe to auth state changes
+      const unsubscribe = authInstance.onAuthStateChanged((user) => {
+        if (user) {
+          setUser(user);
+        } else {
+          setUser(null);
+        }
+        setLoading(false);
+      }, (error) => {
+        console.error('Auth state change error:', error);
+        setError(error as Error);
+        setLoading(false);
+      });
+
+      return unsubscribe;
+    };
+
+    // Initialize auth and cleanup
+    let unsubscribe: (() => void) | undefined;
+    initAuth().then(cleanup => {
+      unsubscribe = cleanup;
     });
 
-    // Cleanup subscription
-    return () => unsubscribe();
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [auth]);
 
-  const signInWithGoogle = async () => {
+  // Memoize auth functions to prevent unnecessary re-renders
+  const signInWithGoogle = useCallback(async () => {
     try {
+      const authInstance = await auth;
+      if (!authInstance) throw new Error('Auth not initialized');
+      
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      await signInWithPopup(authInstance, provider);
     } catch (error) {
       setError(error as Error);
       console.error('Google sign in error:', error);
     }
-  };
+  }, [auth]);
 
-  const signInWithEmail = async (email: string, password: string) => {
+  const signInWithEmail = useCallback(async (email: string, password: string) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const authInstance = await auth;
+      if (!authInstance) throw new Error('Auth not initialized');
+      
+      await signInWithEmailAndPassword(authInstance, email, password);
     } catch (error) {
       setError(error as Error);
       console.error('Email sign in error:', error);
     }
-  };
+  }, [auth]);
 
-  const signUpWithEmail = async (email: string, password: string) => {
+  const createAccount = useCallback(async (email: string, password: string) => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const authInstance = await auth;
+      if (!authInstance) throw new Error('Auth not initialized');
+      
+      await createUserWithEmailAndPassword(authInstance, email, password);
     } catch (error) {
       setError(error as Error);
-      console.error('Email sign up error:', error);
+      console.error('Create account error:', error);
     }
-  };
+  }, [auth]);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
-      await signOut(auth);
+      const authInstance = await auth;
+      if (!authInstance) throw new Error('Auth not initialized');
+      
+      await signOut(authInstance);
       router.push('/auth/login');
     } catch (error) {
-      console.error('Error signing out:', error);
+      setError(error as Error);
+      console.error('Logout error:', error);
     }
-  };
+  }, [auth, router]);
 
-  const updateProfile = async (displayName: string) => {
+  const updateProfile = useCallback(async (displayName: string, photoURL?: string) => {
     try {
-      if (user) {
-        const auth = getAuth();
-        await updateFirebaseProfile(auth.currentUser!, { displayName });
-        setUser({ ...user, displayName });
-      }
+      const authInstance = await auth;
+      if (!authInstance || !authInstance.currentUser) throw new Error('Auth not initialized or no current user');
+      
+      await updateFirebaseProfile(authInstance.currentUser, {
+        displayName,
+        photoURL: photoURL || authInstance.currentUser.photoURL
+      });
+      // Update local user state to reflect changes immediately
+      setUser({ ...authInstance.currentUser });
     } catch (error) {
       setError(error as Error);
-      console.error('Profile update error:', error);
-      throw error;
+      console.error('Update profile error:', error);
     }
-  };
+  }, [auth]);
 
-  const updateEmail = async (newEmail: string) => {
+  const updateEmail = useCallback(async (email: string) => {
     try {
-      if (user) {
-        const auth = getAuth();
-        await updateFirebaseEmail(auth.currentUser!, newEmail);
-        setUser({ ...user, email: newEmail });
-      }
+      const authInstance = await auth;
+      if (!authInstance || !authInstance.currentUser) throw new Error('Auth not initialized or no current user');
+      
+      await updateFirebaseEmail(authInstance.currentUser, email);
+      // Update local user state to reflect changes immediately
+      setUser({ ...authInstance.currentUser });
     } catch (error) {
       setError(error as Error);
-      console.error('Email update error:', error);
-      throw error;
+      console.error('Update email error:', error);
     }
-  };
+  }, [auth]);
 
-  const getUserRoles = async () => {
-    try {
-      if (!user) {
-        return ['guest'];
-      }
-
-      if (typeof window !== 'undefined' && window.firebase) {
-        const firestore = window.firebase.firestore();
-        const userDoc = await firestore
-          .collection('users')
-          .doc(user.uid)
-          .get();
-
-        if (userDoc.exists) {
-          const userData = userDoc.data();
-          return userData?.roles || ['guest'];
-        } else {
-          // Create default user document if it doesn't exist
-          await firestore
-            .collection('users')
-            .doc(user.uid)
-            .set({
-              email: user.email,
-              displayName: user.displayName,
-              roles: ['guest']
-            });
-          return ['guest'];
-        }
-      }
-      return ['guest'];
-    } catch (error) {
-      console.error('Error fetching user roles:', error);
-      return ['guest'];
-    }
-  };
-
-  return {
+  // Memoize the auth object to prevent unnecessary re-renders
+  const authObject = useMemo(() => ({
     user,
     loading,
     error,
     signInWithGoogle,
     signInWithEmail,
-    signUpWithEmail,
+    createAccount,
     logout,
     updateProfile,
-    updateEmail,
-    getUserRoles
-  };
+    updateEmail
+  }), [
+    user,
+    loading,
+    error,
+    signInWithGoogle,
+    signInWithEmail,
+    createAccount,
+    logout,
+    updateProfile,
+    updateEmail
+  ]);
+
+  return authObject;
 }

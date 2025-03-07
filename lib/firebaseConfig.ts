@@ -44,7 +44,7 @@ const validateFirebaseConfig = (config: FirebaseConfigType) => {
 };
 
 // Fonction pour initialiser Firebase côté client
-export const initFirebase = async () => {
+export const initFirebase = () => {
   try {
     // Validation de la configuration
     validateFirebaseConfig(firebaseConfig);
@@ -52,38 +52,16 @@ export const initFirebase = async () => {
     if (typeof window !== 'undefined') {
       console.log('Initialisation de Firebase côté client...');
 
-      const { initializeApp } = await import('firebase/app');
-      const { getAnalytics, isSupported, logEvent } = await import('firebase/analytics');
-      const { getAuth } = await import('firebase/auth');
+      // Import synchronously to avoid initialization issues
+      const { initializeApp } = require('firebase/app');
       
-      console.log('Importations Firebase réussies');
-
+      // Initialize Firebase app first
       const app = initializeApp(firebaseConfig);
       console.log('Firebase App initialisé:', app);
-
-      // Vérification du support des analytics
-      const analyticsSupported = await isSupported();
-      let analytics = null;
-      if (analyticsSupported) {
-        analytics = getAnalytics(app);
-        console.log('Firebase Analytics initialisé');
-        
-        // Exemple d'utilisation de l'analytics
-        try {
-          logEvent(analytics, 'app_launch');
-        } catch (logError) {
-          console.error('Erreur lors de la journalisation de l\'événement:', logError);
-        }
-      } else {
-        console.log('Firebase Analytics non supporté');
-      }
-
-      // Initialisation de l'authentification
-      const auth = getAuth(app);
-      console.log('Firebase Auth initialisé');
-
-      return { app, auth, analytics };
+      
+      return app;
     }
+    return null;
   } catch (error) {
     console.error('Erreur lors de l\'initialisation de Firebase:', error);
     throw error;

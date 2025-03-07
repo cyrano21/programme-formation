@@ -1,33 +1,32 @@
-/* Styles pour le composant d'authentification */
 .auth-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background-color: #f4f4f4;
+  min-block-size: 100vh;
+  background-color: var(--background);
 }
 
 .auth-form {
-  background-color: white;
+  background-color: var(--card);
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
+  inline-size: 100%;
+  max-inline-size: 400px;
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-block-end: 1rem;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-block-end: 0.5rem;
   font-weight: bold;
 }
 
 .form-control {
-  width: 100%;
+  inline-size: 100%;
   padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -36,7 +35,7 @@
 .form-actions {
   display: flex;
   justify-content: space-between;
-  margin-top: 1rem;
+  margin-block-start: 1rem;
 }
 
 .btn {
@@ -48,36 +47,36 @@
 }
 
 .btn-primary {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
 }
 
 .btn-primary:hover {
-  background-color: #0056b3;
+  background-color: var(--primary-dark);
 }
 
 .btn-secondary {
-  background-color: #6c757d;
-  color: white;
+  background-color: var(--muted);
+  color: var(--muted-foreground);
 }
 
 .btn-secondary:hover {
-  background-color: #545b62;
+  background-color: var(--muted-dark);
 }
 
 .btn-google {
-  background-color: #db4437;
-  color: white;
-  width: 100%;
-  margin-top: 1rem;
+  background-color: var(--destructive);
+  color: var(--destructive-foreground);
+  inline-size: 100%;
+  margin-block-start: 1rem;
 }
 
 .btn-google:hover {
-  background-color: #c33b2e;
+  background-color: var(--destructive-dark);
 }
 
 .social-login {
-  margin-top: 1rem;
+  margin-block-start: 1rem;
   text-align: center;
 }
 
@@ -88,38 +87,38 @@
 }
 
 .profile-image {
-  width: 64px;
-  height: 64px;
+  inline-size: 64px;
+  block-size: 64px;
   border-radius: 50%;
 }
 
 .btn-danger {
-  background-color: #dc3545;
-  color: white;
+  background-color: var(--destructive);
+  color: var(--destructive-foreground);
 }
 
 .btn-danger:hover {
-  background-color: #c82333;
+  background-color: var(--destructive-dark);
 }
 
 /* Styles pour la validation de formulaire */
 .form-control.is-invalid {
-  border-color: #dc3545;
+  border-color: var(--destructive);
 }
 
 .error-message {
-  color: #dc3545;
+  color: var(--destructive);
   font-size: 0.875rem;
-  margin-top: 0.25rem;
+  margin-block-start: 0.25rem;
   animation: fadeIn 0.3s ease-in-out;
 }
 
 .success-message {
-  background-color: #28a745;
-  color: white;
+  background-color: var(--success);
+  color: var(--success-foreground);
   padding: 0.75rem;
   border-radius: 4px;
-  margin-bottom: 1rem;
+  margin-block-end: 1rem;
   text-align: center;
 }
 
@@ -139,15 +138,15 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  block-size: 100vh;
 }
 
 .spinner {
   border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
+  border-block-start: 4px solid #3498db;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  inline-size: 50px;
+  block-size: 50px;
   animation: spin 1s linear infinite;
 }
 
@@ -158,44 +157,43 @@
 
 /* Styles pour la gestion des rôles */
 .role-manager {
-  max-width: 600px;
+  max-inline-size: 600px;
   margin: 2rem auto;
   padding: 1rem;
-  background-color: white;
+  background-color: var(--card);
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow);
 }
 
 .current-roles {
-  margin-bottom: 1.5rem;
+  margin-block-end: 1.5rem;
 }
 
 .role-badge {
   display: inline-block;
-  background-color: #f4f4f4;
-  color: #333;
+  background-color: var(--muted);
+  color: var(--muted-foreground);
   padding: 0.5rem 1rem;
   border-radius: 4px;
-  margin-right: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-inline-end: 0.5rem;
+  margin-block-end: 0.5rem;
   font-weight: bold;
 }
 
 .role-assignment {
-  margin-bottom: 1.5rem;
+  margin-block-end: 1.5rem;
 }
 
 .role-info ul {
   list-style-type: disc;
-  padding-left: 1.5rem;
+  padding-inline-start: 1.5rem;
 }
 
 .role-info li {
-  margin-bottom: 0.5rem;
+  margin-block-end: 0.5rem;
 }
 
 /* Badges de rôle colorés */
-.role-badge.user { background-color: #e0e0e0; }
-.role-badge.student { background-color: #4CAF50; color: white; }
-.role-badge.coach { background-color: #2196F3; color: white; }
-.role-badge.admin { background-color: #FF5722; color: white; }
+.role-badge.user { background-color: var(--muted); color: var(--muted-foreground); }
+.role-badge.student { background-color: var(--success); color: var(--success-foreground); }
+.role-badge.coach { background-color: var(--primary); color: var(--primary-foreground); }

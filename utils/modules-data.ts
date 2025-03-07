@@ -78,7 +78,52 @@ export const programData: Phase[] = [
           { icon: "🌠", name: "Pensée systémique" },
           { icon: "🧠", name: "Intégration scientifique" }
         ],
-        progress: 30
+        progress: 30,
+        lessons: [
+          {
+            id: "universe-birth-1",
+            title: "Naissance de l'Univers",
+            description: "Explorer les mystères de la création cosmique, des particules primordiales à la formation des galaxies",
+            duration: "45 min",
+            progress: 0,
+            content: [
+              {
+                title: "Introduction au Big Bang",
+                description: "Le Big Bang est la théorie cosmologique dominante sur le développement initial de l'univers. Selon cette théorie, l'univers était initialement dans un état extrêmement chaud et dense il y a environ 13,8 milliards d'années, et s'est depuis étendu. L'expansion de l'univers est l'une des preuves les plus convaincantes du Big Bang, observée par le décalage vers le rouge des galaxies lointaines."
+              },
+              {
+                title: "Les Premières Fractions de Seconde",
+                description: "Dans les premiers instants après le Big Bang, l'univers a connu une expansion exponentielle appelée inflation cosmique. Cette période a duré de 10^-36 à 10^-32 seconde après le Big Bang. Pendant cette phase, l'univers s'est étendu d'un facteur d'au moins 10^26, créant l'homogénéité et l'isotropie observées aujourd'hui."
+              },
+              {
+                title: "Formation des Particules Élémentaires",
+                description: "Après l'inflation, l'univers était rempli d'un plasma de quarks et de gluons. À mesure que l'univers se refroidissait, ces particules se sont combinées pour former des protons et des neutrons. Environ trois minutes après le Big Bang, la nucléosynthèse primordiale a commencé, formant les premiers noyaux légers comme l'hydrogène, l'hélium et le lithium."
+              },
+              {
+                title: "L'Âge Sombre et la Réionisation",
+                description: "Environ 380 000 ans après le Big Bang, l'univers s'est suffisamment refroidi pour permettre aux électrons de se combiner avec les noyaux, formant les premiers atomes neutres. Cette période, connue sous le nom de recombinaison, a permis à la lumière de voyager librement, créant le rayonnement cosmique de fond que nous observons aujourd'hui. S'en est suivi l'âge sombre, avant que les premières étoiles ne commencent à se former."
+              },
+              {
+                title: "Formation des Galaxies",
+                description: "Les fluctuations quantiques pendant l'inflation ont créé de légères variations de densité dans l'univers primitif. Ces variations se sont amplifiées par gravité, conduisant à la formation des premières étoiles et galaxies environ 100 à 200 millions d'années après le Big Bang. Les galaxies se sont ensuite regroupées en amas et superamas, formant la structure à grande échelle de l'univers que nous observons aujourd'hui."
+              }
+            ],
+            exercises: [
+              {
+                title: "Ligne du Temps Cosmique",
+                description: "Créez une ligne du temps illustrant les principales étapes de l'évolution de l'univers, du Big Bang à la formation des galaxies. Identifiez les événements clés et leur chronologie relative."
+              },
+              {
+                title: "Réflexion sur l'Expansion",
+                description: "Réfléchissez aux implications de l'expansion continue de l'univers. Quelles sont les théories actuelles sur le destin ultime de l'univers? Comment les concepts d'énergie noire et de matière noire influencent-ils notre compréhension?"
+              },
+              {
+                title: "Visualisation des Échelles",
+                description: "Essayez de visualiser les différentes échelles de temps et d'espace impliquées dans l'évolution cosmique. Comment pouvons-nous conceptualiser des périodes aussi courtes que les premières fractions de seconde après le Big Bang, ou des distances aussi vastes que celles entre les galaxies?"
+              }
+            ]
+          }
+        ]
       },
       {
         id: "life-emergence",
@@ -425,4 +470,4 @@ export const programData: Phase[] = [
       }
     ]
   }
-]; 
+];

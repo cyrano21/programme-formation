@@ -5,6 +5,29 @@
 
 @import '../styles/theme.css';
 
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+/* Base Font Settings */
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Poppins', var(--font-sans);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.025em;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   inline-size: 8px;
@@ -97,14 +120,207 @@ button {
   animation: slideIn 0.5s ease-out;
 }
 
+/* Typography Utilities */
+.text-balance {
+  /* Comprehensive fallbacks for browsers that don't support text-wrap */
+  text-align: start;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-inline-size: 100%;
+  /* For browsers that support text-wrap */
+  @supports (text-wrap: balance) {
+    text-wrap: balance;
+  }
+}
+
+.text-pretty {
+  /* Enhanced fallbacks for browsers that don't support text-wrap: pretty */
+  text-align: justify;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  /* text-justify property removed due to poor browser support */
+  /* Only apply text-wrap: pretty in browsers that support it */
+  @supports (text-wrap: pretty) {
+    text-wrap: pretty;
+  }
+}
+
+/* Enhanced Card Design */
+.card-hover-effect {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -8px rgb(0 0 0 / 0.15);
+}
+
+/* Glass Effect */
+.glass-effect {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.05)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Modern Button Styles */
+.button-modern {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.button-modern::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transform: translateX(-100%);
+}
+
+.button-modern:hover::before {
+  transform: translateX(100%);
+  transition: transform 0.75s ease;
+}
+
 /* Additional global styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import des animations personnalisées */
+@import '../styles/animations.css';
+
+:root {
+  --radius: 0.5rem;
+}
+
 * {
   box-sizing: border-box;
-  margin: 0;
   padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-inline-size: 100vw;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+/* Amélioration des transitions globales */
+a, button, input, select, textarea {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Amélioration des effets de focus */
+a:focus, button:focus, input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Amélioration des scrollbars */
+::-webkit-scrollbar {
+  inline-size: 8px;
+  block-size: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  opacity: 0.5;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+  opacity: 0.8;
+}
+
+/* Amélioration des sélections de texte */
+::selection {
+  background-color: var(--primary);
+  color: white;
+  text-shadow: none;
+}
+
+/* Styles pour les cartes avec effet de survol */
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary);
+  opacity: 0.3;
+}
+
+/* Styles pour les boutons avec effet de survol */
+.button-hover {
+  transition: all 0.3s ease;
+}
+
+.button-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.button-hover:active {
+  transform: translateY(0);
+}
+
+/* Styles pour les éléments avec effet de verre (glassmorphism) */
+.glass {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Styles pour les badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-weight: 500;
+  font-size: 0.75rem;
+  line-height: 1;
+  padding: 0.35rem 0.65rem;
+  transition: all 0.2s ease;
+}
+
+.badge:hover {
+  transform: scale(1.05);
 }
 
 :root {
+  /* These RGB variables are overriding our theme variables */
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
@@ -119,13 +335,10 @@ button {
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  /* This is causing the white background by using hardcoded RGB values */
+  /* Replacing with theme variables */
+  color: var(--foreground);
+  background: var(--background);
 }
 
 /* Theme Variables */

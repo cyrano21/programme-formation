@@ -1,7 +1,15 @@
 'use client';
 
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import { Icons } from '@/utils/icons';
+import styles from './theme-context.module.css';
 
 type Theme = 'light' | 'dark' | 'system';
 type Color = 'indigo' | 'emerald' | 'violet' | 'rose';
@@ -26,15 +34,22 @@ const getThemeVariables = (theme: Theme, color: Color) => {
     indigo: '#4f46e5',
     emerald: '#059669',
     violet: '#7c3aed',
-    rose: '#e11d48'
+    rose: '#e11d48',
   };
 
   const darkTheme = {
     '--background': '#0f172a',
     '--foreground': '#f8fafc',
-    '--muted': '#475569',
-    '--muted-foreground': '#cbd5e1',
-    '--card': '#1e293b',
+    '--muted': '#334155',
+    '--muted-foreground': '#94a3b8',
+    '--card':
+      color === 'indigo'
+        ? '#3730a3'
+        : color === 'emerald'
+        ? '#065f46'
+        : color === 'violet'
+        ? '#5b21b6'
+        : '#9f1239',
     '--card-foreground': '#f8fafc',
     '--popover': '#1e293b',
     '--popover-foreground': '#f8fafc',
@@ -46,21 +61,59 @@ const getThemeVariables = (theme: Theme, color: Color) => {
     '--ring-foreground': '#f8fafc',
     '--text-primary': '#f8fafc',
     '--text-secondary': '#cbd5e1',
-    '--bg-primary': '#1e293b',
-    '--bg-secondary': '#334155',
-    '--shadow': 'rgba(0, 0, 0, 0.5)',
+    '--bg-primary':
+      color === 'indigo'
+        ? '#4338ca'
+        : color === 'emerald'
+        ? '#047857'
+        : color === 'violet'
+        ? '#6d28d9'
+        : '#be123c',
+    '--bg-secondary':
+      color === 'indigo'
+        ? '#3730a3'
+        : color === 'emerald'
+        ? '#065f46'
+        : color === 'violet'
+        ? '#5b21b6'
+        : '#9f1239',
+    '--shadow': 'rgba(0, 0, 0, 0.25)',
     '--destructive': '#b91c1c',
     '--destructive-foreground': '#fecaca',
-    '--accent': '#334155',
-    '--accent-foreground': '#f8fafc'
+    '--accent':
+      color === 'indigo'
+        ? '#6366f1'
+        : color === 'emerald'
+        ? '#10b981'
+        : color === 'violet'
+        ? '#8b5cf6'
+        : '#f43f5e',
+    '--accent-foreground': '#f8fafc',
+    '--glass': 'rgba(15, 23, 42, 0.8)',
+    '--glass-border': 'rgba(255, 255, 255, 0.08)',
+    '--glass-shadow': '0 8px 32px rgba(0, 0, 0, 0.3)',
   };
 
   const lightTheme = {
-    '--background': '#ffffff',
+    '--background':
+      color === 'indigo'
+        ? '#eef2ff'
+        : color === 'emerald'
+        ? '#ecfdf5'
+        : color === 'violet'
+        ? '#f5f3ff'
+        : '#fff1f2',
     '--foreground': '#0f172a',
     '--muted': '#64748b',
     '--muted-foreground': '#334155',
-    '--card': '#f8fafc',
+    '--card':
+      color === 'indigo'
+        ? '#e0e7ff'
+        : color === 'emerald'
+        ? '#d1fae5'
+        : color === 'violet'
+        ? '#ede9fe'
+        : '#ffe4e6',
     '--card-foreground': '#0f172a',
     '--popover': '#f8fafc',
     '--popover-foreground': '#0f172a',
@@ -72,13 +125,43 @@ const getThemeVariables = (theme: Theme, color: Color) => {
     '--ring-foreground': '#0f172a',
     '--text-primary': '#0f172a',
     '--text-secondary': '#334155',
-    '--bg-primary': '#f8fafc',
-    '--bg-secondary': '#f1f5f9',
-    '--shadow': 'rgba(0, 0, 0, 0.1)',
+    '--bg-primary':
+      color === 'indigo'
+        ? '#e0e7ff'
+        : color === 'emerald'
+        ? '#d1fae5'
+        : color === 'violet'
+        ? '#ede9fe'
+        : color === 'rose'
+        ? '#ffe4e6'
+        : '#f8fafc',
+    '--bg-secondary':
+      color === 'indigo'
+        ? '#c7d2fe'
+        : color === 'emerald'
+        ? '#a7f3d0'
+        : color === 'violet'
+        ? '#ddd6fe'
+        : color === 'rose'
+        ? '#fecdd3'
+        : '#f1f5f9',
+    '--shadow': 'rgba(0, 0, 0, 0.08)',
     '--destructive': '#dc2626',
     '--destructive-foreground': '#fef2f2',
-    '--accent': '#f1f5f9',
-    '--accent-foreground': '#0f172a'
+    '--accent':
+      color === 'indigo'
+        ? '#818cf8'
+        : color === 'emerald'
+        ? '#34d399'
+        : color === 'violet'
+        ? '#a78bfa'
+        : color === 'rose'
+        ? '#fb7185'
+        : '#f1f5f9',
+    '--accent-foreground': '#0f172a',
+    '--glass': 'rgba(255, 255, 255, 0.8)',
+    '--glass-border': 'rgba(0, 0, 0, 0.08)',
+    '--glass-shadow': '0 8px 32px rgba(0, 0, 0, 0.1)',
   };
 
   return theme === 'dark' ? darkTheme : lightTheme;
@@ -87,6 +170,7 @@ const getThemeVariables = (theme: Theme, color: Color) => {
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  // Initialize theme from localStorage only once
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('theme');
@@ -97,16 +181,21 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     return 'light';
   });
 
+  // Initialize color from localStorage only once
   const [color, setColor] = useState<Color>(() => {
     if (typeof window !== 'undefined') {
       const savedColor = localStorage.getItem('color');
-      if (savedColor && ['indigo', 'emerald', 'violet', 'rose'].includes(savedColor)) {
+      if (
+        savedColor &&
+        ['indigo', 'emerald', 'violet', 'rose'].includes(savedColor)
+      ) {
         return savedColor as Color;
       }
     }
     return 'indigo';
   });
 
+  // Memoize the toggleTheme function
   const toggleTheme = useCallback(() => {
     const newTheme: Theme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
@@ -115,35 +204,37 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [theme]);
 
+  // Memoize the setColor function
+  const handleSetColor = useCallback((newColor: Color) => {
+    setColor(newColor);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('color', newColor);
+    }
+  }, []);
+
+  // Memoize theme variables
+  const themeVariables = useMemo(
+    () => getThemeVariables(theme, color),
+    [theme, color]
+  );
+
   // Apply theme-specific styles
   useEffect(() => {
     const root = document.documentElement;
-    const variables = getThemeVariables(theme, color);
-    
-    Object.entries(variables).forEach(([property, value]) => {
+
+    // Apply CSS variables
+    Object.entries(themeVariables).forEach(([property, value]) => {
       root.style.setProperty(property, value);
     });
 
     // Update data-theme attribute
     root.setAttribute('data-theme', theme);
-    // Force a repaint to ensure styles are applied
-    document.body.style.display = 'none';
-    document.body.offsetHeight;
-    document.body.style.display = '';
-  }, [theme, color]);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('theme', theme);
-    }
+    // Update theme classes
     document.documentElement.classList.remove('light', 'dark');
     document.documentElement.classList.add(theme);
-  }, [theme]);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('color', color);
-    }
+    // Update color classes
     document.documentElement.classList.remove(
       'theme-indigo',
       'theme-emerald',
@@ -151,17 +242,21 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
       'theme-rose'
     );
     document.documentElement.classList.add(`theme-${color}`);
-  }, [color]);
+  }, [theme, color, themeVariables]);
+
+  // Memoize context value
+  const contextValue = useMemo(
+    () => ({
+      theme,
+      color,
+      toggleTheme,
+      setColor: handleSetColor,
+    }),
+    [theme, color, toggleTheme, handleSetColor]
+  );
 
   return (
-    <ThemeContext.Provider
-      value={{
-        theme,
-        color,
-        toggleTheme,
-        setColor,
-      }}
-    >
+    <ThemeContext.Provider value={contextValue}>
       {children}
     </ThemeContext.Provider>
   );
@@ -180,6 +275,38 @@ export const ThemeToggle: React.FC = () => {
 
   const colorOptions: Color[] = ['indigo', 'emerald', 'violet', 'rose'];
 
+  // Color map for direct access to color values
+  const colorMap = {
+    indigo: {
+      bg: '#4f46e5',
+      light: '#e0e7ff',
+      medium: '#818cf8',
+      dark: '#4338ca',
+      ring: '#6366f1',
+    },
+    emerald: {
+      bg: '#059669',
+      light: '#d1fae5',
+      medium: '#34d399',
+      dark: '#047857',
+      ring: '#10b981',
+    },
+    violet: {
+      bg: '#7c3aed',
+      light: '#ede9fe',
+      medium: '#a78bfa',
+      dark: '#6d28d9',
+      ring: '#8b5cf6',
+    },
+    rose: {
+      bg: '#e11d48',
+      light: '#ffe4e6',
+      medium: '#fb7185',
+      dark: '#be123c',
+      ring: '#f43f5e',
+    },
+  };
+
   return (
     <div className="theme-controls flex items-center space-x-2">
       <div className="theme-toggle">
@@ -189,7 +316,8 @@ export const ThemeToggle: React.FC = () => {
           className={`
             p-2.5 rounded-full transition-all duration-300 backdrop-blur-sm
             shadow-lg hover:shadow-xl active:scale-95
-            ${theme === 'light'
+            ${
+              theme === 'light'
                 ? 'bg-primary text-white hover:bg-primary/90 hover:ring-2 hover:ring-primary/20'
                 : 'bg-gray-800 text-white hover:bg-gray-700 hover:ring-2 hover:ring-gray-600'
             }
@@ -206,25 +334,42 @@ export const ThemeToggle: React.FC = () => {
         </button>
       </div>
 
-      <div className="color-palette flex items-center space-x-1">
-        {colorOptions.map((colorOption) => (
-          <button
-            key={colorOption}
-            className={`
-              p-2 rounded-full transition-all duration-300
-              backdrop-blur-sm shadow-md hover:shadow-lg active:scale-95
-              ${color === colorOption
-                ? `ring-2 ring-${colorOption}-400 scale-110 bg-${colorOption}-500 text-white hover:ring-offset-2`
-                : `hover:scale-105 bg-${colorOption}-100 text-${colorOption}-700 hover:bg-${colorOption}-200 hover:ring-2 hover:ring-${colorOption}-400/50`
+      <div className="color-palette flex items-center space-x-4">
+        {colorOptions.map((colorOption) => {
+          const colorStyles = colorMap[colorOption];
+          return (
+            <button
+              key={colorOption}
+              className={`
+                p-2 rounded-full transition-all duration-300
+                backdrop-blur-sm shadow-md hover:shadow-lg active:scale-95
+                ${styles.colorButtonBackground}
+                ${
+                  color === colorOption
+                    ? 'ring-2 scale-110 hover:ring-offset-2'
+                    : 'hover:scale-105 hover:ring-2'
+                }
+                transform hover:rotate-45
+              `}
+              style={
+                {
+                  '--color-bg':
+                    color === colorOption ? colorStyles.bg : colorStyles.light,
+                  '--color-border': colorStyles.ring,
+                  '--color-text':
+                    color === colorOption ? '#ffffff' : colorStyles.dark,
+                } as React.CSSProperties
               }
-              transform hover:rotate-45
-            `}
-            onClick={() => setColor(colorOption)}
-            aria-label={`${colorOption} theme`}
-          >
-            <span className="block w-3 h-3 rounded-full"></span>
-          </button>
-        ))}
+              onClick={() => setColor(colorOption)}
+              aria-label={`${colorOption} theme`}
+            >
+              <span
+                className={`block w-3 h-3 rounded-full ${styles.colorIndicator}`}
+                style={{ '--color-dot': colorStyles.bg } as React.CSSProperties}
+              ></span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

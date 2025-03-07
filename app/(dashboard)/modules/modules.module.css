@@ -1,6 +1,24 @@
 .moduleCard {
   position: relative;
   overflow: hidden;
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  -webkit-backdrop-filter: blur(10px); /* Safari compatibility */
+  backdrop-filter: blur(10px);
+  transform: translateY(0);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: fadeIn 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.moduleCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
 }
 
 .progressBar {
@@ -8,8 +26,10 @@
   inset-block-start: 0;
   inset-inline-start: 0;
   inline-size: 100%;
-  block-size: 1px;
-  background-color: #f1f5f9;
+  block-size: 4px;
+  background-color: var(--bg-secondary);
+  z-index: 10;
+  overflow: hidden;
 }
 
 .progressBarFill {
@@ -17,16 +37,19 @@
   inset-block-start: 0;
   inset-inline-start: 0;
   block-size: 100%;
-  background-color: #059669;
+  background-color: var(--primary);
   inline-size: var(--progress-width, 0%);
-  transition: width 0.3s ease-in-out;
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 0 0 8px var(--primary);
 }
 
 .cardHeader {
   position: relative;
-  padding: 1.5rem;
-  background-color: #f8fafc;
-  border-block-end: 1px solid #e2e8f0;
+  padding: 2rem 1.5rem;
+  background-color: var(--card);
+  border-block-end: 1px solid var(--border);
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
 .headerOverlay {
@@ -35,11 +58,97 @@
   inset-inline-start: 0;
   inset-inline-end: 0;
   inset-block-end: 0;
-  background: linear-gradient(to right, rgba(5, 150, 105, 0.05), rgba(147, 51, 234, 0.05));
+  background: radial-gradient(circle at top right, var(--primary-foreground/5), transparent 70%), 
+              linear-gradient(135deg, var(--primary)/5, var(--accent)/5);
   opacity: 0;
-  transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.5s ease-in-out;
 }
 
 .moduleCard:hover .headerOverlay {
   opacity: 1;
 }
+
+.moduleCard:hover .cardHeader {
+  background-color: var(--card-hovered, var(--card));
+}
+
+/* Add a class for each possible progress percentage range */
+.progress0 { --progress-width: 0%; }
+.progress10 { --progress-width: 10%; }
+.progress20 { --progress-width: 20%; }
+.progress30 { --progress-width: 30%; }
+.progress40 { --progress-width: 40%; }
+.progress50 { --progress-width: 50%; }
+.progress60 { --progress-width: 60%; }
+.progress70 { --progress-width: 70%; }
+.progress80 { --progress-width: 80%; }
+.progress90 { --progress-width: 90%; }
+.progress100 { --progress-width: 100%; }
+
+/* Add smooth animation for progress bar */
+@keyframes progressAnimation {
+  from { inline-size: 0; }
+  to { inline-size: var(--progress-width); }
+}
+
+/* Add card hover effect utilities */
+.card-hover-effect {
+  transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1),
+              box-shadow 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-8px) scale(1.01);
+}
+
+/* Button modern effect */
+.button-modern {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.button-modern::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.button-modern:hover::after {
+  transform: translateX(100%);
+}
+
+/* Animation delay classes */
+.delay-phase-0 { animation-delay: 0ms; }
+.delay-phase-1 { animation-delay: 150ms; }
+.delay-phase-2 { animation-delay: 300ms; }
+.delay-phase-3 { animation-delay: 450ms; }
+.delay-phase-4 { animation-delay: 600ms; }
+
+.delay-module-0 { animation-delay: 0ms; }
+.delay-module-1 { animation-delay: 100ms; }
+.delay-module-2 { animation-delay: 200ms; }
+.delay-module-3 { animation-delay: 300ms; }
+.delay-module-4 { animation-delay: 400ms; }
+
+.delay-phase-module-0-0 { animation-delay: 0ms; }
+.delay-phase-module-0-1 { animation-delay: 100ms; }
+.delay-phase-module-0-2 { animation-delay: 200ms; }
+.delay-phase-module-1-0 { animation-delay: 150ms; }
+.delay-phase-module-1-1 { animation-delay: 250ms; }
+.delay-phase-module-1-2 { animation-delay: 350ms; }
+.delay-phase-module-2-0 { animation-delay: 300ms; }
+.delay-phase-module-2-1 { animation-delay: 400ms; }
+.delay-phase-module-2-2 { animation-delay: 500ms; }
+.delay-phase-module-3-0 { animation-delay: 450ms; }
+.delay-phase-module-3-1 { animation-delay: 550ms; }
+.delay-phase-module-3-2 { animation-delay: 650ms; }
+.delay-phase-module-4-0 { animation-delay: 600ms; }
+.delay-phase-module-4-1 { animation-delay: 700ms; }
+.delay-phase-module-4-2 { animation-delay: 800ms; }

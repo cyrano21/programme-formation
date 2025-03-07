@@ -1,64 +1,81 @@
-'use client'
+'use client';
 
-import { redirect } from 'next/navigation'
-import MainLayout from '@/components/layout/MainLayout'
-import { getAuth, onAuthStateChanged } from 'firebase/auth'
-import { initFirebase } from '@/lib/firebaseConfig'
-import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation';
+import MainLayout from '@/components/layout/MainLayout';
+import { onAuthStateChanged, Auth } from 'firebase/auth';
+import { firebaseClient } from '@/lib/firebaseClient';
+import { useEffect, useState } from 'react';
 
 export default function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  // Use state to track Firebase auth initialization
+  const [auth, setAuth] = useState<Auth | null>(null);
+
+  // Initialize Firebase when component mounts
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        // Initialize Firebase using the client singleton
+        const client = await firebaseClient.initialize();
+        if (client.auth) {
+          setAuth(client.auth);
+        } else {
+          console.error('Firebase auth not initialized');
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        console.error('Error initializing Firebase:', error);
+        setIsAuthenticated(false);
+      }
+    };
+
+    initAuth();
+  }, []);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        console.log('Initializing Firebase in Dashboard Layout');
-        await initFirebase()
-        
-        const auth = getAuth()
-        console.log('Auth object:', auth);
-        
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-          console.log('Dashboard Layout - User:', user)
-          
-          if (user) {
-            // Utilisateur connecté
-            setIsAuthenticated(true)
-          } else {
-            // Pas d'utilisateur connecté
-            console.log('Pas d\'utilisateur connecté, redirection vers login')
-            setIsAuthenticated(false)
-            redirect('/auth/login')
-          }
-        }, (error) => {
-          console.error('Erreur de vérification d\'authentification:', error)
-          setIsAuthenticated(false)
-          redirect('/auth/login')
-        })
+    let unsubscribe: () => void;
 
-        // Nettoyer l'abonnement
-        return () => unsubscribe()
-      } catch (error) {
-        console.error('Erreur lors de l\'initialisation de Firebase:', error)
-        setIsAuthenticated(false)
-        redirect('/auth/login')
+    const setupAuth = () => {
+      if (!auth) {
+        setIsAuthenticated(false);
+        return;
       }
+
+      unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      });
+    };
+
+    if (auth) {
+      setupAuth();
     }
 
-    checkAuth()
-  }, [])
+    return () => unsubscribe?.();
+  }, [auth]);
+
+  useEffect(() => {
+    if (isAuthenticated === false) {
+      router.push('/auth/login');
+    }
+  }, [isAuthenticated, router]);
 
   if (isAuthenticated === null) {
-    return <div>Chargement...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-pulse text-primary">Loading...</div>
+      </div>
+    );
   }
 
-  return (
-    <MainLayout>
-      {children}
-    </MainLayout>
-  )
+  return <MainLayout>{children}</MainLayout>;
 }

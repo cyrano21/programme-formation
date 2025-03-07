@@ -9,29 +9,34 @@ const QuickActions: React.FC = () => {
   const { quickActions } = useDashboard();
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6">
-      <h2 className="text-xl font-semibold mb-4">Actions Rapides</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="bg-card/95 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-border/50 hover:shadow-xl transition-all duration-300">
+      <h2 className="text-xl font-bold text-foreground mb-6 flex items-center">
+        <Icons.Zap className="h-5 w-5 mr-2 text-primary" />
+        Actions Rapides
+      </h2>
+      <div className="space-y-3">
         {quickActions.map((action) => {
           const ActionIcon = Icons[action.icon as keyof typeof Icons];
           return (
             <Link 
               key={action.id} 
-              href={action.route} 
-              className="group"
+              href={action.route}
             >
-              <div className="flex items-center space-x-4 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                <div className="bg-primary/10 p-3 rounded-full">
-                  <ActionIcon className="h-6 w-6 text-primary group-hover:text-primary-dark" />
+              <div className="group flex items-center p-4 rounded-lg hover:bg-accent/50 transition-all duration-300 border border-border hover:border-primary/30 hover:shadow-md">
+                <div className="flex-shrink-0">
+                  <div className="p-3 rounded-full bg-primary/5 group-hover:bg-primary/15 transition-colors shadow-sm group-hover:shadow">
+                    <ActionIcon className="h-5 w-5 text-primary/90 group-hover:text-primary transition-colors" />
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-800 group-hover:text-primary">
+                <div className="ml-4 flex-1">
+                  <h3 className="font-semibold text-foreground group-hover:text-primary/90 transition-colors">
                     {action.title}
                   </h3>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors">
                     {action.description}
                   </p>
                 </div>
+                <Icons.ChevronEnd className="h-5 w-5 text-muted-foreground group-hover:text-primary/90 transition-colors" />
               </div>
             </Link>
           );
