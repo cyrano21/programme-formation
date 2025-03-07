@@ -52,7 +52,7 @@ export default function LessonView() {
   // Function to navigate to the next lesson
   const goToNextLesson = useCallback(() => {
     if (nextLesson && moduleId) {
-      router.replace(
+      router.push(
         `/lesson-view?moduleId=${moduleId}&lessonId=${nextLesson.id}`
       );
     }

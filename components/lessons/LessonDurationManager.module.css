@@ -1,0 +1,38 @@
+.progressBar {
+  display: flex;
+  margin-block-end: 0.5rem;
+  block-size: 1.5rem;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.contentBar {
+  background-color: var(--color-primary);
+  color: white;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--content-width, 0%);
+  transition: inline-size 0.3s ease;
+}
+
+.exerciseBar {
+  background-color: var(--color-accent);
+  color: white;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--exercise-width, 0%);
+  transition: inline-size 0.3s ease;
+}
+
+/* Custom classes for dynamic width values */
+.contentBarWidth {
+  --content-width: attr(data-width);
+}
+
+.exerciseBarWidth {
+  --exercise-width: attr(data-width);
+}
