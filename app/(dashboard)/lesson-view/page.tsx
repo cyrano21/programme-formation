@@ -20,34 +20,38 @@ export default function LessonView() {
   const moduleId = searchParams.get('moduleId');
   const lessonId = searchParams.get('lessonId');
 
+  // Initialize state at the top level, before any conditional returns
+  // Initialize state at the top level, before any conditional returns
+  const [lessonProgress, setLessonProgress] = useState(0);
+
   // Memoize module and lesson data
-  const module = useMemo(() => {
+  const moduleData = useMemo(() => {
     return programData
       .flatMap((phase) => phase.modules)
       .find((m) => m.id === moduleId);
   }, [moduleId]);
 
   const lesson = useMemo(() => {
-    return module?.lessons?.find((l) => l.id === lessonId);
-  }, [module, lessonId]);
+    return moduleData?.lessons?.find((l) => l.id === lessonId);
+  }, [moduleData, lessonId]);
 
   // Find the index of the current lesson in the module's lessons array
   const currentLessonIndex = useMemo(() => {
-    if (!module?.lessons || !lessonId) return -1;
-    return module.lessons.findIndex((l) => l.id === lessonId);
-  }, [module, lessonId]);
+    if (!moduleData?.lessons || !lessonId) return -1;
+    return moduleData.lessons.findIndex((l) => l.id === lessonId);
+  }, [moduleData, lessonId]);
 
   // Determine if there is a next lesson
   const hasNextLesson = useMemo(() => {
-    if (!module?.lessons) return false;
-    return currentLessonIndex < module.lessons.length - 1;
-  }, [module, currentLessonIndex]);
+    if (!moduleData?.lessons) return false;
+    return currentLessonIndex < moduleData.lessons.length - 1;
+  }, [moduleData, currentLessonIndex]);
 
   // Get the next lesson if it exists
   const nextLesson = useMemo(() => {
-    if (!hasNextLesson || !module?.lessons) return null;
-    return module.lessons[currentLessonIndex + 1];
-  }, [hasNextLesson, module, currentLessonIndex]);
+    if (!hasNextLesson || !moduleData?.lessons) return null;
+    return moduleData.lessons[currentLessonIndex + 1];
+  }, [hasNextLesson, moduleData, currentLessonIndex]);
 
   // Function to navigate to the next lesson
   const goToNextLesson = useCallback(() => {
@@ -60,15 +64,15 @@ export default function LessonView() {
 
   // Determine if there is a previous lesson
   const hasPreviousLesson = useMemo(() => {
-    if (!module?.lessons) return false;
+    if (!moduleData?.lessons) return false;
     return currentLessonIndex > 0;
-  }, [module, currentLessonIndex]);
+  }, [moduleData, currentLessonIndex]);
 
   // Get the previous lesson if it exists
   const previousLesson = useMemo(() => {
-    if (!hasPreviousLesson || !module?.lessons) return null;
-    return module.lessons[currentLessonIndex - 1];
-  }, [hasPreviousLesson, module, currentLessonIndex]);
+    if (!hasPreviousLesson || !moduleData?.lessons) return null;
+    return moduleData.lessons[currentLessonIndex - 1];
+  }, [hasPreviousLesson, moduleData, currentLessonIndex]);
 
   // Function to navigate to the previous lesson
   const goToPreviousLesson = useCallback(() => {
@@ -79,7 +83,14 @@ export default function LessonView() {
     }
   }, [previousLesson, moduleId, router]);
 
-  if (!module || !lesson) {
+  // Update lesson progress when lesson changes
+  React.useEffect(() => {
+    if (lesson && lesson.progress !== undefined) {
+      setLessonProgress(lesson.progress);
+    }
+  }, [lesson]);
+
+  if (!moduleData || !lesson) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center animate-fade-in">
         <div className="text-center bg-white/80 backdrop-blur-sm p-8 rounded-xl shadow-lg border border-border/30 animate-slide-up">
@@ -101,7 +112,12 @@ export default function LessonView() {
     );
   }
 
-  const [lessonProgress, setLessonProgress] = useState(lesson.progress || 0);
+  // Update lesson progress with the current lesson's progress value
+  React.useEffect(() => {
+    if (lesson && lesson.progress !== undefined) {
+      setLessonProgress(lesson.progress);
+    }
+  }, [lesson]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-background/95 animate-gradient-x">

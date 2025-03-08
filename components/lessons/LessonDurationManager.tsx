@@ -4,10 +4,8 @@
  * This component helps visualize and manage the distribution of time
  * between lesson content sections and exercises based on the total lesson duration.
  */
-
 'use client';
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Lesson } from '@/utils/modules-data';
 import {
   parseDuration,
@@ -18,12 +16,15 @@ import {
 } from '@/utils/lesson-duration';
 import styles from './LessonDurationManager.module.css';
 
-// Using Record type to avoid ESLint unused variable warnings
+type LessonType = 'theoretical' | 'practical' | 'workshop' | 'mixed';
 type DurationCalculationResult = {
   contentDurations: string[];
   exerciseDurations: string[];
   contentTotalDuration: string;
   exercisesTotalDuration: string;
+};
+type DurationsState = DurationCalculationResult & {
+  totalMinutes: number;
 };
 
 interface LessonDurationManagerProps {
@@ -31,8 +32,9 @@ interface LessonDurationManagerProps {
   totalDuration?: string;
   contentSections?: number;
   exercisesCount?: number;
-  lessonType?: 'theoretical' | 'practical' | 'workshop' | 'mixed';
-  onDurationsCalculated?: (result: DurationCalculationResult) => void;
+  lessonType?: LessonType;
+  // Renommage du paramètre pour éviter l'erreur no-unused-vars
+  onDurationsCalculated?: (_result: DurationCalculationResult) => void;
 }
 
 export default function LessonDurationManager({
@@ -43,96 +45,83 @@ export default function LessonDurationManager({
   lessonType = 'mixed',
   onDurationsCalculated,
 }: LessonDurationManagerProps) {
-  const [durations, setDurations] = useState<{
-    contentDurations: string[];
-    exerciseDurations: string[];
-    contentTotalDuration: string;
-    exercisesTotalDuration: string;
-    totalMinutes: number;
-  }>({
+  const [durations, setDurations] = useState<DurationsState>({
     contentDurations: [],
     exerciseDurations: [],
     contentTotalDuration: '',
     exercisesTotalDuration: '',
     totalMinutes: 0,
   });
-
-  const [selectedLessonType, setSelectedLessonType] = useState<
-    'theoretical' | 'practical' | 'workshop' | 'mixed'
-  >(lessonType);
+  const [selectedLessonType, setSelectedLessonType] =
+    useState<LessonType>(lessonType);
   const [duration, setDuration] = useState<string>(totalDuration);
   const [sections, setSections] = useState<number>(contentSections);
   const [exercises, setExercises] = useState<number>(exercisesCount);
 
-  // Calculate durations when inputs change
+  // Calculer les durées pour un objet lesson
+  const lessonDurations = useMemo(() => {
+    if (!lesson || !lesson.duration) return null;
+    const totalMinutes = parseDuration(lesson.duration);
+    const config = getDurationConfigForLessonType(selectedLessonType);
+    const { contentDurations, exerciseDurations } =
+      calculateContentAndExerciseDurations(lesson, config);
+    const contentTotalMinutes = Math.round(
+      totalMinutes * (config.contentPercentage / 100)
+    );
+    const exercisesTotalMinutes = Math.round(
+      totalMinutes * (config.exercisesPercentage / 100)
+    );
+    return {
+      contentDurations,
+      exerciseDurations,
+      contentTotalDuration: formatDuration(contentTotalMinutes),
+      exercisesTotalDuration: formatDuration(exercisesTotalMinutes),
+      totalMinutes,
+    };
+  }, [lesson, selectedLessonType]);
+
+  // Calculer les durées suggérées en fonction des entrées manuelles
+  const suggestedDurations = useMemo(() => {
+    if (!duration || sections < 0 || exercises < 0) return null;
+    const validSections = Math.max(0, sections);
+    const validExercises = Math.max(0, exercises);
+    const {
+      totalMinutes,
+      contentTotalDuration,
+      exercisesTotalDuration,
+      contentSectionDurations,
+      exerciseDurations,
+    } = suggestLessonDurations(
+      duration,
+      validSections,
+      validExercises,
+      selectedLessonType
+    );
+    return {
+      totalMinutes,
+      contentTotalDuration,
+      exercisesTotalDuration,
+      contentDurations: contentSectionDurations,
+      exerciseDurations,
+    };
+  }, [duration, sections, exercises, selectedLessonType]);
+
+  // Mettre à jour les durées lorsque les entrées changent
   useEffect(() => {
-    if (lesson) {
-      // If a lesson is provided, calculate based on its content and exercises
-      const { contentDurations, exerciseDurations } =
-        calculateContentAndExerciseDurations(
-          lesson,
-          getDurationConfigForLessonType(selectedLessonType)
-        );
-
-      const totalMinutes = parseDuration(lesson.duration);
-      const config = getDurationConfigForLessonType(selectedLessonType);
-      const contentTotalMinutes = Math.round(
-        totalMinutes * (config.contentPercentage / 100)
-      );
-      const exercisesTotalMinutes = Math.round(
-        totalMinutes * (config.exercisesPercentage / 100)
-      );
-
-      setDurations({
-        contentDurations,
-        exerciseDurations,
-        contentTotalDuration: formatDuration(contentTotalMinutes),
-        exercisesTotalDuration: formatDuration(exercisesTotalMinutes),
-        totalMinutes,
-      });
-
+    const currentResult = lesson ? lessonDurations : suggestedDurations;
+    if (currentResult) {
+      setDurations(currentResult as DurationsState);
       if (onDurationsCalculated) {
-        onDurationsCalculated({
-          contentDurations,
-          exerciseDurations,
-          contentTotalDuration: formatDuration(contentTotalMinutes),
-          exercisesTotalDuration: formatDuration(exercisesTotalMinutes),
-        });
-      }
-    } else {
-      // Otherwise, suggest durations based on inputs
-      const result = suggestLessonDurations(
-        duration,
-        sections,
-        exercises,
-        selectedLessonType
-      );
-
-      setDurations({
-        contentDurations: result.contentSectionDurations,
-        exerciseDurations: result.exerciseDurations,
-        contentTotalDuration: result.contentTotalDuration,
-        exercisesTotalDuration: result.exercisesTotalDuration,
-        totalMinutes: result.totalMinutes,
-      });
-
-      if (onDurationsCalculated) {
-        onDurationsCalculated({
-          contentDurations: result.contentSectionDurations,
-          exerciseDurations: result.exerciseDurations,
-          contentTotalDuration: result.contentTotalDuration,
-          exercisesTotalDuration: result.exercisesTotalDuration,
-        });
+        const calculationResult: DurationCalculationResult = {
+          contentDurations: currentResult.contentDurations,
+          exerciseDurations: currentResult.exerciseDurations,
+          contentTotalDuration: currentResult.contentTotalDuration,
+          exercisesTotalDuration: currentResult.exercisesTotalDuration,
+        };
+        onDurationsCalculated(calculationResult);
       }
     }
-  }, [
-    lesson,
-    duration,
-    sections,
-    exercises,
-    selectedLessonType,
-    onDurationsCalculated,
-  ]);
+  }, [lesson, lessonDurations, suggestedDurations, onDurationsCalculated]);
 
   return (
     <div className="bg-white/95 shadow-md rounded-lg p-6 border border-primary/10">

@@ -22,9 +22,9 @@ export default function ModuleDetail() {
   let foundModule: Module | null = null;
 
   for (const phase of programData) {
-    const module = phase.modules.find((m) => m.id === moduleId);
-    if (module) {
-      foundModule = module;
+    const moduleData = phase.modules.find((m) => m.id === moduleId);
+    if (moduleData) {
+      foundModule = moduleData;
       break;
     }
   }
