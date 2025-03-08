@@ -17,8 +17,19 @@ export default function LessonView() {
   const searchParams = new URLSearchParams(
     typeof window !== 'undefined' ? window.location.search : ''
   );
+  
   const moduleId = searchParams.get('moduleId');
   const lessonId = searchParams.get('lessonId');
+  
+  // Add debugging to track URL parameter extraction
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      console.log('Current URL:', window.location.href);
+      console.log('Search params:', window.location.search);
+      console.log('Extracted moduleId:', moduleId);
+      console.log('Extracted lessonId:', lessonId);
+    }
+  }, [moduleId, lessonId]);
 
   // Initialize state at the top level, before any conditional returns
   // Initialize state at the top level, before any conditional returns
@@ -41,6 +52,16 @@ export default function LessonView() {
     return moduleData.lessons.findIndex((l) => l.id === lessonId);
   }, [moduleData, lessonId]);
 
+  // Calculate total number of lessons in the module
+  const totalLessons = useMemo(() => {
+    return moduleData?.lessons?.length || 0;
+  }, [moduleData]);
+
+  // Calculate current lesson number (1-based index)
+  const currentLessonNumber = useMemo(() => {
+    return currentLessonIndex >= 0 ? currentLessonIndex + 1 : 0;
+  }, [currentLessonIndex]);
+
   // Determine if there is a next lesson
   const hasNextLesson = useMemo(() => {
     if (!moduleData?.lessons) return false;
@@ -56,11 +77,16 @@ export default function LessonView() {
   // Function to navigate to the next lesson
   const goToNextLesson = useCallback(() => {
     if (nextLesson && moduleId) {
-      router.push(
-        `/lesson-view?moduleId=${moduleId}&lessonId=${nextLesson.id}`
-      );
+      // Use direct window location navigation instead of router.push
+      // This can help bypass potential issues with the Next.js router
+      window.location.href = `/lesson-view?moduleId=${moduleId}&lessonId=${nextLesson.id}`;
+      
+      // Log the navigation attempt
+      console.log('Navigating to next lesson:', nextLesson.id);
+    } else {
+      console.log('Cannot navigate: nextLesson or moduleId is missing', { nextLesson, moduleId });
     }
-  }, [nextLesson, moduleId, router]);
+  }, [nextLesson, moduleId]);
 
   // Determine if there is a previous lesson
   const hasPreviousLesson = useMemo(() => {
@@ -77,7 +103,7 @@ export default function LessonView() {
   // Function to navigate to the previous lesson
   const goToPreviousLesson = useCallback(() => {
     if (previousLesson && moduleId) {
-      router.replace(
+      router.push(
         `/lesson-view?moduleId=${moduleId}&lessonId=${previousLesson.id}`
       );
     }
@@ -113,7 +139,7 @@ export default function LessonView() {
   }
 
   // Removed duplicate useEffect hook - this was causing the React Hook conditional usage error
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-background/95 animate-gradient-x">
       {/* Top Navigation */}
@@ -178,15 +204,14 @@ export default function LessonView() {
       {/* Content */}
       <main className="container mx-auto px-4 py-8 animate-fade-in">
         <div className="flex items-center justify-between mb-8 animate-slide-up">
-          <Link href={`/module-detail?id=${moduleId}`}>
-            <Button
-              variant="outline"
-              className="mb-4 hover:bg-primary/5 transition-all duration-300 hover:scale-105 hover:shadow-sm group"
-            >
-              <Icons.ChevronStart className="mr-2 group-hover:animate-pulse" />{' '}
-              Retour au module
-            </Button>
-          </Link>
+          <Button
+            variant="outline"
+            className="mb-4 hover:bg-primary/5 transition-all duration-300 hover:scale-105 hover:shadow-sm group"
+            onClick={() => router.push(`/module-detail?id=${moduleId}`)}
+          >
+            <Icons.ChevronStart className="mr-2 group-hover:animate-pulse" />{' '}
+            Retour au module
+          </Button>
         </div>
 
         <div className="space-y-8">
@@ -293,22 +318,45 @@ export default function LessonView() {
           )}
 
           <div
-            className={`flex justify-between gap-4 mt-8 animate-slide-up ${styles.actionButtons}`}
+            className={`flex justify-between items-center gap-4 mt-8 animate-slide-up ${styles.actionButtons}`}
           >
+            {/* Previous Lesson Button */}
             <Button
               className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg group"
               onClick={goToPreviousLesson}
               disabled={!hasPreviousLesson}
-              title={!hasPreviousLesson ? 'Première leçon du module' : ''}
+              title={
+                !hasPreviousLesson
+                  ? 'Première leçon du module'
+                  : previousLesson?.title
+              }
             >
-              {/* Using ArrowLeft icon for previous lesson navigation */}
               <Icons.ArrowStart className="mr-2 group-hover:-translate-x-1 transition-transform" />
-              Leçon précédente
+              {hasPreviousLesson ? (
+                <>
+                  <span className="mr-2">{previousLesson?.title}</span>
+                  <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+                    {currentLessonNumber - 1}/{totalLessons}
+                  </span>
+                </>
+              ) : (
+                'Leçon précédente'
+              )}
             </Button>
-            <div className="flex gap-4">
+
+            {/* Current Lesson Display (Middle) */}
+            <div className="flex-1 flex flex-col items-center justify-center px-4">
+              <div className="bg-primary/10 px-6 py-3 rounded-lg shadow-sm text-center">
+                <h3 className="text-lg font-semibold text-primary">
+                  {lesson.title}
+                </h3>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Leçon {currentLessonNumber} sur {totalLessons}
+                </div>
+              </div>
               <Button
                 variant="outline"
-                className="hover:bg-primary/10 transition-all duration-300 hover:scale-105 border-primary/20 hover:border-primary/40 hover:shadow-md"
+                className="mt-2 hover:bg-primary/10 transition-all duration-300 hover:scale-105 border-primary/20 hover:border-primary/40 hover:shadow-md"
                 onClick={() => {
                   // Logique pour marquer la leçon comme terminée
                   setLessonProgress(100);
@@ -317,16 +365,29 @@ export default function LessonView() {
                 <Icons.CheckCircle className="mr-2 h-4 w-4" />
                 Marquer comme terminé
               </Button>
-              <Button
-                className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg group"
-                onClick={goToNextLesson}
-                disabled={!hasNextLesson}
-                title={!hasNextLesson ? 'Dernière leçon du module' : ''}
-              >
-                Leçon suivante
-                <Icons.ArrowEnd className="ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
             </div>
+
+            {/* Next Lesson Button */}
+            <Button
+              className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg group"
+              onClick={goToNextLesson}
+              disabled={!hasNextLesson}
+              title={
+                !hasNextLesson ? 'Dernière leçon du module' : nextLesson?.title
+              }
+            >
+              {hasNextLesson ? (
+                <>
+                  <span className="mr-2">{nextLesson?.title}</span>
+                  <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+                    {currentLessonNumber + 1}/{totalLessons}
+                  </span>
+                </>
+              ) : (
+                'Leçon suivante'
+              )}
+              <Icons.ArrowEnd className="ml-2 group-hover:translate-x-1 transition-transform" />
+            </Button>
           </div>
         </div>
       </main>

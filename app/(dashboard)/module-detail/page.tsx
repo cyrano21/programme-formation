@@ -292,7 +292,7 @@ export default function ModuleDetail() {
               Marquer comme terminé
             </Button>
             <Link
-              href={`/lesson-view?moduleId=${moduleId}&lessonId=${foundModule.id}-1`}
+              href={`/lesson-view?moduleId=${moduleId}&lessonId=${foundModule.lessons?.[0]?.id}`}
             >
               <Button className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:shadow-lg hover:scale-105 group">
                 Commencer la première leçon
