@@ -157,6 +157,24 @@ export function useFirebaseAuth() {
     }
   }, [auth]);
 
+  // Get user roles from Firestore
+  const getUserRoles = useCallback(async () => {
+    try {
+      const authInstance = await auth;
+      if (!authInstance || !authInstance.currentUser) {
+        return ['guest'];
+      }
+      
+      // For now, return a default role array
+      // In a real implementation, this would fetch roles from Firestore
+      return ['user'];
+    } catch (error) {
+      setError(error as Error);
+      console.error('Get user roles error:', error);
+      return ['guest'];
+    }
+  }, [auth]);
+
   // Memoize the auth object to prevent unnecessary re-renders
   const authObject = useMemo(() => ({
     user,
@@ -167,7 +185,8 @@ export function useFirebaseAuth() {
     createAccount,
     logout,
     updateProfile,
-    updateEmail
+    updateEmail,
+    getUserRoles
   }), [
     user,
     loading,
@@ -177,7 +196,8 @@ export function useFirebaseAuth() {
     createAccount,
     logout,
     updateProfile,
-    updateEmail
+    updateEmail,
+    getUserRoles
   ]);
 
   return authObject;

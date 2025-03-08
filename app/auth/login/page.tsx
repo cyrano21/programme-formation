@@ -166,7 +166,7 @@ export default function LoginPage() {
 
           <CardFooter className="flex flex-col space-y-2">
             <div className="text-center text-sm text-gray-600">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link
                 href="/auth"
                 className="font-medium text-primary hover:text-primary/80 transition-colors"

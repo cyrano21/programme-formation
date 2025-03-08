@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { useFirebaseAuth } from '../hooks/useFirebaseAuth';
+import Image from 'next/image';
 
 export default function AuthManager() {
-  const { 
-    user, 
-    loading, 
-    error, 
-    signInWithGoogle, 
-    signInWithEmail: signInWithEmailPassword, 
-    logout: signOut, 
-    signUpWithEmail: createUserWithEmailPassword 
+  const {
+    user,
+    loading,
+    error,
+    signInWithGoogle,
+    signInWithEmail: signInWithEmailPassword,
+    logout: signOut,
+    createAccount: createUserWithEmailPassword,
   } = useFirebaseAuth();
 
   const [email, setEmail] = useState('');
@@ -18,7 +19,7 @@ export default function AuthManager() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (isSignUp) {
       await createUserWithEmailPassword(email, password);
     } else {
@@ -39,10 +40,12 @@ export default function AuthManager() {
       <div className="auth-container">
         <div className="user-info">
           {user.photoURL && (
-            <img 
-              src={user.photoURL} 
-              alt="Profile" 
-              className="profile-image" 
+            <Image
+              src={user.photoURL}
+              alt="Profile"
+              width={40}
+              height={40}
+              className="profile-image"
             />
           )}
           <div>
@@ -52,11 +55,7 @@ export default function AuthManager() {
           </div>
         </div>
         <div className="auth-actions">
-          <button 
-            type="button"
-            onClick={signOut} 
-            className="btn btn-danger"
-          >
+          <button type="button" onClick={signOut} className="btn btn-danger">
             Déconnexion
           </button>
         </div>
@@ -68,7 +67,7 @@ export default function AuthManager() {
     <div className="auth-container">
       <form onSubmit={handleSubmit} className="auth-form">
         <h2>{isSignUp ? 'Inscription' : 'Connexion'}</h2>
-        
+
         <div className="form-group">
           <label htmlFor="email">Email</label>
           <input
@@ -80,7 +79,7 @@ export default function AuthManager() {
             className="form-control"
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="password">Mot de passe</label>
           <input
@@ -92,24 +91,23 @@ export default function AuthManager() {
             className="form-control"
           />
         </div>
-        
+
         <div className="form-actions">
-          <button 
-            type="submit" 
-            className="btn btn-primary"
-          >
-            {isSignUp ? 'S\'inscrire' : 'Se connecter'}
+          <button type="submit" className="btn btn-primary">
+            {isSignUp ? "S'inscrire" : 'Se connecter'}
           </button>
-          
-          <button 
+
+          <button
             type="button"
             onClick={() => setIsSignUp(!isSignUp)}
             className="btn btn-secondary"
           >
-            {isSignUp ? 'Déjà un compte ? Se connecter' : 'Pas de compte ? S\'inscrire'}
+            {isSignUp
+              ? 'Déjà un compte ? Se connecter'
+              : "Pas de compte ? S'inscrire"}
           </button>
 
-          <button 
+          <button
             type="button"
             onClick={signInWithGoogle}
             className="btn btn-google"

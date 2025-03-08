@@ -39,6 +39,8 @@ export default function ResetPassword() {
         text: 'Un email de réinitialisation a été envoyé'
       })
     } catch (err) {
+      // Log error for debugging purposes
+      console.error('Password reset error:', err);
       setMessage({
         type: 'error',
         text: 'Impossible d\'envoyer l\'email de réinitialisation'

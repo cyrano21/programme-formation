@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge"
 
 // Déclaration de type pour tailwind-merge
 declare module "tailwind-merge" {
-  export function twMerge(...classes: string[]): string
+  export function twMerge(..._classes: string[]): string
 }
 
 /**

@@ -171,7 +171,7 @@ export default function ModuleDetail() {
                 value="overview"
                 className="rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:bg-primary/5"
               >
-                Vue d'ensemble
+                Vue d&apos;ensemble
               </TabsTrigger>
               <TabsTrigger
                 value="themes"

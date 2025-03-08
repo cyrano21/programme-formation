@@ -2,6 +2,7 @@
 
 import React, { useState, memo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ThemeProvider, ThemeToggle, useTheme } from '@/contexts/ThemeContext';
 import { Icons } from '@/utils/icons';
 import Footer from './Footer';
@@ -29,13 +30,14 @@ const SIDEBAR_NAVIGATION: SidebarNavItem[] = [
 ];
 
 // Memoized navigation item to prevent re-renders
-const NavItem = memo(({ item, onClick }: { item: SidebarNavItem; onClick: () => void }) => {
-  const IconComponent = Icons[item.icon];
-  return (
-    <li key={item.href}>
-      <Link
-        href={item.href}
-        className={`
+const NavItem = memo(
+  ({ item, onClick }: { item: SidebarNavItem; onClick: () => void }) => {
+    const IconComponent = Icons[item.icon];
+    return (
+      <li key={item.href}>
+        <Link
+          href={item.href}
+          className={`
           flex items-center gap-3
           px-4 py-3
           hover:bg-primary/10
@@ -45,36 +47,36 @@ const NavItem = memo(({ item, onClick }: { item: SidebarNavItem; onClick: () => 
           text-foreground/80 hover:text-primary
           group
         `}
-        onClick={onClick}
-        prefetch={true}
-      >
-        <IconComponent className="h-5 w-5" />
-        <span className="font-medium">{item.label}</span>
-      </Link>
-    </li>
-  );
-});
+          onClick={onClick}
+          prefetch={true}
+        >
+          <IconComponent className="h-5 w-5" />
+          <span className="font-medium">{item.label}</span>
+        </Link>
+      </li>
+    );
+  }
+);
 NavItem.displayName = 'NavItem';
 
 // Memoized sidebar component
-const Sidebar = memo(({ 
-  isSidebarOpen, 
-  toggleSidebar, 
-  toggleSupportModal 
-}: { 
-  isSidebarOpen: boolean; 
-  toggleSidebar: () => void; 
-  toggleSupportModal: () => void 
-}) => {
-  return (
-    <aside
-      className={`
+const Sidebar = memo(
+  ({
+    isSidebarOpen,
+    toggleSidebar,
+    toggleSupportModal,
+  }: {
+    isSidebarOpen: boolean;
+    toggleSidebar: () => void;
+    toggleSupportModal: () => void;
+  }) => {
+    return (
+      <aside
+        className={`
         fixed md:sticky md:top-0 md:h-screen
         inset-y-0 left-0 z-50
         ${
-          isSidebarOpen
-            ? 'translate-x-0'
-            : '-translate-x-full md:translate-x-0'
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         } 
         w-[280px] md:w-64
         transition-all duration-300 ease-in-out
@@ -84,40 +86,45 @@ const Sidebar = memo(({
         flex flex-col
         overflow-hidden
       `}
-    >
-      <div className="flex items-center justify-between p-4 border-b border-border/40">
-        <span className="text-xl font-semibold text-primary">CoachVerse</span>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleSidebar}
-          className="md:hidden text-primary hover:bg-primary/10"
-        >
-          <Icons.X className="h-5 w-5" />
-        </Button>
-      </div>
+      >
+        <div className="flex items-center justify-between p-4 border-b border-border/40">
+          <span className="text-xl font-semibold text-primary">CoachVerse</span>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="md:hidden text-primary hover:bg-primary/10"
+          >
+            <Icons.X className="h-5 w-5" />
+          </Button>
+        </div>
 
-      <nav className="sidebar-nav p-4">
-        <ul className="space-y-3">
-          {SIDEBAR_NAVIGATION.map((item) => (
-            <NavItem key={item.href} item={item} onClick={() => toggleSidebar()} />
-          ))}
-        </ul>
-      </nav>
+        <nav className="sidebar-nav p-4">
+          <ul className="space-y-3">
+            {SIDEBAR_NAVIGATION.map((item) => (
+              <NavItem
+                key={item.href}
+                item={item}
+                onClick={() => toggleSidebar()}
+              />
+            ))}
+          </ul>
+        </nav>
 
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border/40">
-        <Button
-          variant="ghost"
-          onClick={toggleSupportModal}
-          className="w-full flex items-center gap-2 justify-center text-primary hover:bg-primary/10"
-        >
-          <Icons.HelpCircle className="h-5 w-5" />
-          <span>Support</span>
-        </Button>
-      </div>
-    </aside>
-  );
-});
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border/40">
+          <Button
+            variant="ghost"
+            onClick={toggleSupportModal}
+            className="w-full flex items-center gap-2 justify-center text-primary hover:bg-primary/10"
+          >
+            <Icons.HelpCircle className="h-5 w-5" />
+            <span>Support</span>
+          </Button>
+        </div>
+      </aside>
+    );
+  }
+);
 Sidebar.displayName = 'Sidebar';
 
 function MainLayoutContent({ children }: MainLayoutProps) {
@@ -133,10 +140,10 @@ function MainLayoutContent({ children }: MainLayoutProps) {
     <div
       className={`main-layout ${theme} flex flex-col md:flex-row min-h-screen max-h-screen overflow-hidden bg-gradient-to-br from-background to-background/95`}
     >
-      <Sidebar 
-        isSidebarOpen={isSidebarOpen} 
-        toggleSidebar={toggleSidebar} 
-        toggleSupportModal={toggleSupportModal} 
+      <Sidebar
+        isSidebarOpen={isSidebarOpen}
+        toggleSidebar={toggleSidebar}
+        toggleSupportModal={toggleSupportModal}
       />
 
       {/* Main Content Area */}
@@ -164,10 +171,12 @@ function MainLayoutContent({ children }: MainLayoutProps) {
                 <div className="flex items-center gap-3 md:gap-4">
                   <div className="hidden md:flex items-center gap-3 bg-primary/5 px-3 py-1.5 rounded-full transition-all duration-200 hover:bg-primary/10">
                     {user.photoURL && (
-                      <img
+                      <Image
                         src={user.photoURL}
                         alt={user.displayName || 'User'}
-                        className="w-8 h-8 rounded-full ring-2 ring-primary/30 shadow-md object-cover transition-all duration-200 hover:ring-primary/50"
+                        width={32}
+                        height={32}
+                        className="rounded-full ring-2 ring-primary/30 shadow-md object-cover transition-all duration-200 hover:ring-primary/50"
                       />
                     )}
                     <span className="font-medium text-foreground/90 hover:text-primary transition-colors duration-200">

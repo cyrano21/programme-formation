@@ -13,16 +13,16 @@ export const fetchData = async (table: string) => {
   return data
 }
 
-export const insertData = async (table: string, record: any) => {
+export const insertData = async <T>(table: string, record: Partial<T>) => {
   const { data, error } = await supabase.from(table).insert(record)
   if (error) throw error
-  return data
+  return (data || []) as T[]
 }
 
-export const updateData = async (table: string, id: number, record: any) => {
+export const updateData = async <T>(table: string, id: number | string, record: Partial<T>) => {
   const { data, error } = await supabase.from(table).update(record).eq('id', id)
   if (error) throw error
-  return data
+  return (data || []) as T[]
 }
 
 export const deleteData = async (table: string, id: number) => {

@@ -1,16 +1,28 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Switch } from '@/components/ui/switch'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useTheme } from '@/contexts/ThemeContext'
-import { toast } from "sonner";
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Switch } from '@/components/ui/switch';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useTheme } from '@/contexts/ThemeContext';
+import { toast } from 'sonner';
 import { useFirebaseAuth } from '../../../hooks/useFirebaseAuth';
 
 // Types
@@ -29,10 +41,10 @@ type FormData = {
 };
 
 export default function SettingsPage() {
-  const { 
-    user, 
-    updateProfile: updateUserProfile, 
-    updateEmail: updateUserEmail 
+  const {
+    user,
+    updateProfile: updateUserProfile,
+    updateEmail: updateUserEmail,
   } = useFirebaseAuth();
   const { theme, toggleTheme } = useTheme();
 
@@ -44,8 +56,8 @@ export default function SettingsPage() {
     notifications: {
       email: true,
       platform: true,
-      marketing: false
-    }
+      marketing: false,
+    },
   });
 
   const [isEditing, setIsEditing] = React.useState(false);
@@ -67,8 +79,14 @@ export default function SettingsPage() {
         toast.success('Profil mis à jour avec succès');
         setIsEditing(false);
       }
-    } catch (error: any) {
-      toast.error('Erreur lors de la mise à jour du profil', error.message);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Une erreur inconnue est survenue';
+      toast.error('Erreur lors de la mise à jour du profil', {
+        description: errorMessage,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -84,22 +102,22 @@ export default function SettingsPage() {
       notifications: {
         email: true,
         platform: true,
-        marketing: false
-      }
+        marketing: false,
+      },
     });
     setIsEditing(false);
   };
 
   const handleNotificationChange = (
-    category: keyof NotificationPreferences, 
+    category: keyof NotificationPreferences,
     checked: boolean
   ) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      notifications: { 
-        ...prev.notifications, 
-        [category]: checked 
-      }
+      notifications: {
+        ...prev.notifications,
+        [category]: checked,
+      },
     }));
   };
 
@@ -128,7 +146,10 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Informations personnelles</CardTitle>
-            <CardDescription>Mettez à jour vos informations personnelles et votre profil de coach</CardDescription>
+            <CardDescription>
+              Mettez à jour vos informations personnelles et votre profil de
+              coach
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <form onSubmit={handleSave}>
@@ -138,7 +159,9 @@ export default function SettingsPage() {
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     disabled={!isEditing}
                   />
                 </div>
@@ -148,7 +171,9 @@ export default function SettingsPage() {
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     disabled={!isEditing}
                   />
                 </div>
@@ -157,23 +182,24 @@ export default function SettingsPage() {
                   <Textarea
                     id="bio"
                     value={formData.bio}
-                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, bio: e.target.value })
+                    }
                     disabled={!isEditing}
                   />
                 </div>
               </div>
               {!isEditing ? (
-                <Button onClick={() => setIsEditing(true)}>Modifier le profil</Button>
+                <Button onClick={() => setIsEditing(true)}>
+                  Modifier le profil
+                </Button>
               ) : (
                 <div className="flex gap-4">
-                  <Button 
-                    type="submit" 
-                    disabled={isLoading}
-                  >
+                  <Button type="submit" disabled={isLoading}>
                     {isLoading ? 'Enregistrement...' : 'Enregistrer'}
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={handleCancel}
                     disabled={isLoading}
                   >
@@ -189,7 +215,9 @@ export default function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Apparence</CardTitle>
-              <CardDescription>Personnalisez l'apparence de votre interface</CardDescription>
+              <CardDescription>
+                Personnalisez l&apos;apparence de votre interface
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -219,11 +247,13 @@ export default function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Langue</CardTitle>
-              <CardDescription>Sélectionnez votre langue préférée</CardDescription>
+              <CardDescription>
+                Sélectionnez votre langue préférée
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="language">Langue d'affichage</Label>
+                <Label htmlFor="language">Langue d&apos;affichage</Label>
                 <Select
                   value={formData.language}
                   onValueChange={handleLanguageChange}
@@ -244,32 +274,46 @@ export default function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Notifications</CardTitle>
-              <CardDescription>Gérez vos préférences de notifications</CardDescription>
+              <CardDescription>
+                Gérez vos préférences de notifications
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="email-notifications">Notifications par email</Label>
+                  <Label htmlFor="email-notifications">
+                    Notifications par email
+                  </Label>
                   <Switch
                     id="email-notifications"
                     checked={formData.notifications.email}
-                    onCheckedChange={(checked) => handleNotificationChange('email', checked)}
+                    onCheckedChange={(checked) =>
+                      handleNotificationChange('email', checked)
+                    }
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="platform-notifications">Notifications de la plateforme</Label>
+                  <Label htmlFor="platform-notifications">
+                    Notifications de la plateforme
+                  </Label>
                   <Switch
                     id="platform-notifications"
                     checked={formData.notifications.platform}
-                    onCheckedChange={(checked) => handleNotificationChange('platform', checked)}
+                    onCheckedChange={(checked) =>
+                      handleNotificationChange('platform', checked)
+                    }
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="marketing-notifications">Communications marketing</Label>
+                  <Label htmlFor="marketing-notifications">
+                    Communications marketing
+                  </Label>
                   <Switch
                     id="marketing-notifications"
                     checked={formData.notifications.marketing}
-                    onCheckedChange={(checked) => handleNotificationChange('marketing', checked)}
+                    onCheckedChange={(checked) =>
+                      handleNotificationChange('marketing', checked)
+                    }
                   />
                 </div>
               </div>

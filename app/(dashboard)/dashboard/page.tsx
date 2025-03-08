@@ -5,6 +5,7 @@ import QuickActions from '@/features/dashboard/components/QuickActions';
 import { RecentActivities } from '@/features/dashboard/components/RecentActivities';
 import { Icons } from '@/utils/icons';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import Image from 'next/image';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -27,10 +28,12 @@ export default function DashboardPage() {
                     Bonjour, {user.displayName || 'Utilisateur'}
                   </span>
                   {user.photoURL ? (
-                    <img
+                    <Image
                       src={user.photoURL}
                       alt="Profile"
-                      className="h-10 w-10 rounded-full border-2 border-primary-foreground/70 shadow-lg"
+                      width={40}
+                      height={40}
+                      className="rounded-full border-2 border-primary-foreground/70 shadow-lg object-cover"
                     />
                   ) : (
                     <div className="h-10 w-10 rounded-full bg-primary-foreground/20 flex items-center justify-center text-primary-foreground font-semibold shadow-lg">

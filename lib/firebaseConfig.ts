@@ -52,14 +52,16 @@ export const initFirebase = () => {
     if (typeof window !== 'undefined') {
       console.log('Initialisation de Firebase côté client...');
 
-      // Import synchronously to avoid initialization issues
-      const { initializeApp } = require('firebase/app');
+      // Use dynamic import for client-side code
+      return import('firebase/app').then(({ initializeApp }) => {
+        // Initialize Firebase app
+        const app = initializeApp(firebaseConfig);
+        console.log('Firebase App initialisé:', app);
+        
+        return app;
+      });
       
-      // Initialize Firebase app first
-      const app = initializeApp(firebaseConfig);
-      console.log('Firebase App initialisé:', app);
-      
-      return app;
+      // The initialization is now handled in the import() promise above
     }
     return null;
   } catch (error) {

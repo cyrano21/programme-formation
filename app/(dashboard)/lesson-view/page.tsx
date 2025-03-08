@@ -112,13 +112,8 @@ export default function LessonView() {
     );
   }
 
-  // Update lesson progress with the current lesson's progress value
-  React.useEffect(() => {
-    if (lesson && lesson.progress !== undefined) {
-      setLessonProgress(lesson.progress);
-    }
-  }, [lesson]);
-
+  // Removed duplicate useEffect hook - this was causing the React Hook conditional usage error
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-background/95 animate-gradient-x">
       {/* Top Navigation */}
