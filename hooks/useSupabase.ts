@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { BaseModel } from '@/types/global'
 
 // Type générique pour les erreurs
@@ -9,13 +9,91 @@ export interface GenericStringError {
 }
 
 // Initialisation du client Supabase
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+// Mock implementation of PostgrestFilterBuilder
+type MockPostgrestResponse<T = unknown> = {
+  data: T[] | null;
+  error: null | { message: string; code: string };
+}
+
+type MockPostgrestBuilder<T = unknown> = {
+  select: (_columns?: string) => Promise<MockPostgrestResponse<T>>;
+  insert: (_data: unknown) => Promise<MockPostgrestResponse<T>>;
+  update: (_data: unknown) => MockPostgrestBuilder<T>;
+  delete: () => MockPostgrestBuilder<T>;
+  eq: (_column: string, _value: unknown) => Promise<MockPostgrestResponse<T>>;
+  order: (_column: string, _options: { ascending: boolean }) => MockPostgrestBuilder<T>;
+}
+
+// Vérification des valeurs avant création du client
+let supabase: SupabaseClient
+try {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.warn('Supabase URL or Anonymous Key is missing. Using a mock client that will not make actual API calls.')
+    // Créer un mock client qui ne fera pas d'appels réels
+    const mockBuilder: MockPostgrestBuilder<unknown> = {
+      select: () => Promise.resolve({ data: [], error: null }),
+      insert: () => Promise.resolve({ data: [], error: null }),
+      update: () => mockBuilder,
+      delete: () => mockBuilder,
+      eq: () => Promise.resolve({ data: [], error: null }),
+      order: () => mockBuilder
+    }
+
+    const mockClient = {
+      supabaseUrl: '',
+      supabaseKey: '',
+      auth: {
+        onAuthStateChange: () => ({ data: null, error: null }),
+        getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+        signOut: () => Promise.resolve({ error: null })
+      },
+      from: () => mockBuilder,
+      realtime: { connect: () => {}, disconnect: () => {} },
+      storage: { from: () => ({}) },
+      functions: { invoke: () => Promise.resolve({}) },
+      rest: { from: () => mockBuilder }
+    } as unknown as SupabaseClient
+
+    supabase = mockClient
+  } else {
+    supabase = createClient(supabaseUrl, supabaseAnonKey)
+  }
+} catch (error) {
+  console.error('Failed to initialize Supabase client:', error)
+  // Fallback to mock client with same structure as above
+  const mockBuilder: MockPostgrestBuilder<unknown> = {
+    select: () => Promise.resolve({ data: [], error: null }),
+    insert: () => Promise.resolve({ data: [], error: null }),
+    update: () => mockBuilder,
+    delete: () => mockBuilder,
+    eq: () => Promise.resolve({ data: [], error: null }),
+    order: () => mockBuilder
+  }
+
+  supabase = {
+    supabaseUrl: '',
+    supabaseKey: '',
+    auth: {
+      onAuthStateChange: () => ({ data: null, error: null }),
+      getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+      signOut: () => Promise.resolve({ error: null })
+    },
+    from: () => mockBuilder,
+    realtime: { connect: () => {}, disconnect: () => {} },
+    storage: { from: () => ({}) },
+    functions: { invoke: () => Promise.resolve({}) },
+    rest: { from: () => mockBuilder }
+  } as unknown as SupabaseClient
+}
+
+export { supabase }
 
 // Type générique pour les options de requête
 type QueryOptions<T> = {
-  filter?: Record<string, any>
+  filter?: Record<string, unknown>
   select?: string
   order?: { column: keyof T; ascending?: boolean }
 }
@@ -35,31 +113,27 @@ export function useSupabaseData<T extends BaseModel>(
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<GenericStringError | null>(null)
 
+  // Extract options to individual variables for dependency array
+  const { select, filter, order } = options
+  // Create a stable reference for the dependency check
+  const optionsString = JSON.stringify(options)
+
   useEffect(() => {
     let isMounted = true
-    let subscription: any = null
 
     async function fetchData() {
       try {
-        // Construction de la requête
-        let query = supabase.from(table).select('*') as any
+        let query = supabase.from(table).select(select || '*')
 
-        // Filtres
-        if (options.filter) {
-          Object.entries(options.filter).forEach(([key, value]) => {
+        if (filter) {
+          Object.entries(filter).forEach(([key, value]) => {
             query = query.eq(key, value)
           })
         }
 
-        // Sélection personnalisée
-        if (options.select) {
-          query = query.select(options.select)
-        }
-
-        // Tri
-        if (options.order) {
-          query = query.order(options.order.column as string, { 
-            ascending: options.order.ascending ?? true 
+        if (order) {
+          query = query.order(order.column as string, { 
+            ascending: order.ascending ?? true 
           })
         }
 
@@ -71,12 +145,12 @@ export function useSupabaseData<T extends BaseModel>(
             code: fetchError.code
           })
         } else if (isMounted) {
-          setData(fetchedData || [])
+          setData((fetchedData as unknown) as T[] || [])
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (isMounted) {
           setError({
-            message: err.message || 'Une erreur est survenue',
+            message: err instanceof Error ? err.message : 'Une erreur est survenue',
           })
         }
       } finally {
@@ -90,11 +164,8 @@ export function useSupabaseData<T extends BaseModel>(
 
     return () => {
       isMounted = false
-      if (subscription) {
-        subscription.unsubscribe()
-      }
     }
-  }, [table, JSON.stringify(options)])
+  }, [table, select, filter, order, optionsString])
 
   return { data, loading, error }
 }
@@ -111,8 +182,8 @@ export async function insertData<T extends BaseModel>(
       .select()
 
     if (error) throw error
-    return data as T[]
-  } catch (err: any) {
+    return (data as unknown) as T[]
+  } catch (err: unknown) {
     console.error(`Erreur lors de l'insertion dans ${table}:`, err)
     throw err
   }
@@ -131,14 +202,14 @@ export async function updateData<T extends BaseModel>(
       .select()
 
     if (error) throw error
-    return data as T[]
-  } catch (err: any) {
+    return (data as unknown) as T[]
+  } catch (err: unknown) {
     console.error(`Erreur lors de la mise à jour dans ${table}:`, err)
     throw err
   }
 }
 
-export async function deleteData<T extends BaseModel>(
+export async function deleteData(
   table: string, 
   id: number
 ) {
@@ -150,7 +221,7 @@ export async function deleteData<T extends BaseModel>(
 
     if (error) throw error
     return true
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error(`Erreur lors de la suppression dans ${table}:`, err)
     throw err
   }
@@ -161,21 +232,14 @@ export async function searchData<T extends BaseModel>(
   options: QueryOptions<T> = {}
 ) {
   try {
-    let query = supabase.from(table).select('*') as any
+    let query = supabase.from(table).select(options.select || '*')
 
-    // Filtres
     if (options.filter) {
       Object.entries(options.filter).forEach(([key, value]) => {
         query = query.eq(key, value)
       })
     }
 
-    // Sélection personnalisée
-    if (options.select) {
-      query = query.select(options.select)
-    }
-
-    // Tri
     if (options.order) {
       query = query.order(options.order.column as string, { 
         ascending: options.order.ascending ?? true 
@@ -185,8 +249,8 @@ export async function searchData<T extends BaseModel>(
     const { data, error } = await query
 
     if (error) throw error
-    return data as T[]
-  } catch (err: any) {
+    return (data as unknown) as T[]
+  } catch (err: unknown) {
     console.error(`Erreur lors de la recherche dans ${table}:`, err)
     throw err
   }

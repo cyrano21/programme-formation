@@ -1,13 +1,60 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Icons } from '@/utils/icons';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import styles from './tools.module.css';
 
+// Define types for our tool data
+type ToolStep = {
+  title: string;
+  description: string;
+} | string;
+
+type ToolCategory = {
+  name: string;
+  questions: string[];
+};
+
+type ToolSection = {
+  title: string;
+  prompt: string;
+};
+
+type ToolContent = {
+  steps?: ToolStep[];
+  areas?: string[];
+  categories?: ToolCategory[];
+  sections?: ToolSection[];
+};
+
+type Tool = {
+  id: number;
+  title: string;
+  category: string;
+  description: string;
+  icon: ReactNode;
+  content: ToolContent;
+};
+
+// Define the category mapping type
+type CategoryMapping = {
+  all: string;
+  framework: string;
+  template: string;
+  exercise: string;
+  resource: string;
+};
+
 // Données de placeholder - seront remplacées par les données de Supabase
-const toolsData = [
+const toolsData: Tool[] = [
   {
     id: 1,
     title: 'Modèle GROW',
@@ -138,16 +185,35 @@ const toolsData = [
 export default function Tools() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
+  const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const filteredTools = toolsData.filter((tool) => {
     const matchesSearch =
       tool.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       tool.description.toLowerCase().includes(searchTerm.toLowerCase());
+
+    // Map the UI category to the actual data category
+    const categoryMapping: CategoryMapping = {
+      all: 'all',
+      framework: 'Cadre',
+      template: 'Modèle',
+      exercise: 'Exercice',
+      resource: 'Ressource',
+    };
+
+    const mappedCategory = categoryMapping[activeCategory as keyof CategoryMapping] || activeCategory;
+
     const matchesCategory =
-      activeCategory === 'tous' ||
-      tool.category.toLowerCase() === activeCategory.toLowerCase();
+      mappedCategory === 'all' || tool.category === mappedCategory;
+
     return matchesSearch && matchesCategory;
   });
+
+  const handleViewDetails = (tool: Tool) => {
+    setSelectedTool(tool);
+    setIsDialogOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 animate-gradient-x">
@@ -164,7 +230,7 @@ export default function Tools() {
                 href="/dashboard"
                 className="text-sm font-medium hover:text-primary transition-all duration-300 hover:scale-105 px-3 py-1.5 rounded-full"
               >
-                Dashboard
+                Tableau de bord
               </a>
               <a
                 href="/modules"
@@ -176,19 +242,19 @@ export default function Tools() {
                 href="/tools"
                 className="text-sm font-medium text-primary border-b-2 border-primary hover:scale-105 transition-all duration-300 px-3 py-1.5 rounded-full bg-primary/5"
               >
-                Tools
+                Outils
               </a>
               <a
                 href="/lessons"
                 className="text-sm font-medium hover:text-primary transition-all duration-300 hover:scale-105 px-3 py-1.5 rounded-full"
               >
-                Lessons
+                Leçons
               </a>
               <a
                 href="/assessments"
                 className="text-sm font-medium hover:text-primary transition-all duration-300 hover:scale-105 px-3 py-1.5 rounded-full"
               >
-                Progress
+                Progression
               </a>
             </nav>
           </div>
@@ -215,11 +281,11 @@ export default function Tools() {
       <main className="container mx-auto px-4 py-8 animate-fade-in">
         <div className="mb-8 text-center animate-slide-up">
           <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent animate-gradient-x">
-            Coaching Tools
+            Outils de Coaching
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-light">
-            Unlock your potential with our curated collection of professional
-            coaching tools
+            Libérez votre potentiel avec notre collection d&apos;outils de coaching
+            professionnels
           </p>
         </div>
 
@@ -230,7 +296,7 @@ export default function Tools() {
           <div className="max-w-xl mx-auto relative group">
             <Input
               type="search"
-              placeholder="Search tools by name or description..."
+              placeholder="Rechercher des outils par nom ou description..."
               className="pl-10 py-2.5 text-base border-2 border-border/50 focus:border-primary/50 rounded-xl shadow-sm group-hover:shadow-md transition-all duration-300"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -251,7 +317,17 @@ export default function Tools() {
                       : 'hover:border-primary/50'
                   } hover:scale-105`}
                 >
-                  {category === 'all' ? 'Tous' : category}
+                  {category === 'all'
+                    ? 'Tous'
+                    : category === 'framework'
+                    ? 'Cadre'
+                    : category === 'template'
+                    ? 'Modèle'
+                    : category === 'exercise'
+                    ? 'Exercice'
+                    : category === 'resource'
+                    ? 'Ressource'
+                    : category}
                 </Button>
               )
             )}
@@ -265,7 +341,9 @@ export default function Tools() {
           {filteredTools.map((tool, index) => (
             <Card
               key={tool.id}
-              className={`group hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-primary/30 rounded-xl overflow-hidden backdrop-blur-sm animate-slide-up ${styles.toolCard} ${styles[`toolCard${index}`] || ''}`}
+              className={`group hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-primary/30 rounded-xl overflow-hidden backdrop-blur-sm animate-slide-up ${
+                styles.toolCard
+              } ${styles[`toolCard${index}`] || ''}`}
             >
               <CardHeader className="pb-4 relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -292,14 +370,131 @@ export default function Tools() {
                 <Button
                   variant="outline"
                   className="w-full group-hover:bg-primary group-hover:text-white transition-all duration-500 hover:scale-105 hover:shadow-lg rounded-lg border-primary/20 hover:border-primary/50"
+                  onClick={() => handleViewDetails(tool)}
                 >
                   <Icons.Eye className="mr-2 h-4 w-4 group-hover:animate-pulse" />
-                  View Details
+                  Voir les détails
                 </Button>
               </CardContent>
             </Card>
           ))}
         </div>
+
+        {/* Tool Details Dialog */}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            {selectedTool && (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-bold text-primary flex items-center gap-3">
+                    <div className="bg-primary/10 p-3 rounded-full">
+                      {selectedTool.icon}
+                    </div>
+                    {selectedTool.title}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="mt-6 space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Description</h3>
+                    <p className="text-muted-foreground">
+                      {selectedTool.description}
+                    </p>
+                  </div>
+                  {selectedTool.content.steps && (
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">Étapes</h3>
+                      <div className="space-y-4">
+                        {selectedTool.content.steps.map((step, index) => (
+                          <div
+                            key={index}
+                            className="p-4 bg-primary/5 rounded-lg"
+                          >
+                            <h4 className="font-medium text-primary mb-1">
+                              {typeof step === 'string'
+                                ? `Étape ${index + 1}`
+                                : step.title}
+                            </h4>
+                            <p className="text-sm text-muted-foreground">
+                              {typeof step === 'string'
+                                ? step
+                                : step.description}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {selectedTool.content.areas && (
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">Domaines</h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        {selectedTool.content.areas.map((area, index) => (
+                          <div
+                            key={index}
+                            className="p-3 bg-primary/5 rounded-lg text-sm"
+                          >
+                            {area}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {selectedTool.content.categories && (
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">
+                        Catégories de Questions
+                      </h3>
+                      <div className="space-y-4">
+                        {selectedTool.content.categories.map(
+                          (category, index) => (
+                            <div
+                              key={index}
+                              className="p-4 bg-primary/5 rounded-lg"
+                            >
+                              <h4 className="font-medium text-primary mb-2">
+                                {category.name}
+                              </h4>
+                              <ul className="list-disc list-inside space-y-1">
+                                {category.questions.map((question, qIndex) => (
+                                  <li
+                                    key={qIndex}
+                                    className="text-sm text-muted-foreground"
+                                  >
+                                    {question}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {selectedTool.content.sections && (
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">Sections</h3>
+                      <div className="space-y-4">
+                        {selectedTool.content.sections.map((section, index) => (
+                          <div
+                            key={index}
+                            className="p-4 bg-primary/5 rounded-lg"
+                          >
+                            <h4 className="font-medium text-primary mb-1">
+                              {section.title}
+                            </h4>
+                            <p className="text-sm text-muted-foreground">
+                              {section.prompt}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {filteredTools.length === 0 && (
           <div className="text-center py-16 animate-fade-in">
@@ -309,7 +504,7 @@ export default function Tools() {
                 size={48}
               />
               <p className="text-xl text-muted-foreground font-light">
-                No tools found matching your search
+                Aucun outil trouvé correspondant à votre recherche
               </p>
               <Button
                 variant="outline"
@@ -320,7 +515,7 @@ export default function Tools() {
                 }}
               >
                 <Icons.RefreshCw className="mr-2 h-4 w-4" />
-                Reset filters
+                Réinitialiser les filtres
               </Button>
             </div>
           </div>
