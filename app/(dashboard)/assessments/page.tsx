@@ -374,6 +374,7 @@ export default function Assessments() {
   const [activeView, setActiveView] = useState<'progress' | 'skills'>(
     'progress'
   );
+  // Removed the unused selectedAssessment state
   // Utiliser les données par défaut si les données dynamiques ne sont pas disponibles
   const displayAssessments =
     assessments.length > 0 ? assessments : defaultAssessmentsData;
@@ -381,8 +382,7 @@ export default function Assessments() {
   const displayProgress = progress.length > 0 ? progress : defaultProgressData;
 
   const handleAssessmentSelect = (assessment: Assessment) => {
-    // This function is called but doesn't need to set any state
-    // It's only used as an onClick handler for the assessment cards
+    // Just log the selection without setting state
     console.log('Assessment selected:', assessment.title);
   };
 
@@ -555,7 +555,7 @@ export default function Assessments() {
                         </DialogHeader>
                         <AssessmentQuestionnaire
                           assessment={assessment}
-                          onClose={() => setSelectedAssessment(null)}
+                          onClose={() => {}}
                           onSubmit={handleSubmitAssessment}
                         />
                       </DialogContent>
