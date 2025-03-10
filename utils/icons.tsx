@@ -18,9 +18,15 @@ const createDynamicIconComponent = (iconName: string) => {
         if (!Icon) {
           console.warn(`Icon ${iconName} not found`);
           // Return a component that renders null
-          return React.memo(() => null) as React.ComponentType<IconProps>;
+          const NullComponent = React.memo(
+            () => null
+          ) as React.ComponentType<IconProps>;
+          NullComponent.displayName = `${iconName}Icon_NotFound`;
+          return NullComponent;
         }
-        return Icon as React.ComponentType<IconProps>;
+        const IconComponent = Icon as React.ComponentType<IconProps>;
+        IconComponent.displayName = `${iconName}Icon`;
+        return IconComponent;
       }),
     {
       ssr: false,
@@ -82,6 +88,7 @@ export const Icons = {
   Bell: createDynamicIconComponent('Bell'),
   Tool: createDynamicIconComponent('Tool'),
   Eye: createDynamicIconComponent('Eye'),
+  ExternalLink: createDynamicIconComponent('ExternalLink'),
   Google: (props?: { className?: string }) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"

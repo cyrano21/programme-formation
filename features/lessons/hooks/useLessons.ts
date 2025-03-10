@@ -16,6 +16,16 @@ export type Lesson = {
   difficulty?: 'débutant' | 'intermédiaire' | 'avancé';
   prerequisites?: string[];
   tags?: string[];
+  content?: Array<{
+    title: string;
+    description: string;
+    duration?: string;
+  }>;
+  exercises?: Array<{
+    title: string;
+    description: string;
+    duration?: string;
+  }>;
 };
 
 export interface LessonsState {

@@ -1,5 +1,6 @@
 'use client';
-import React, { useState, ReactNode } from 'react';
+import React, { useState } from 'react';
+import ToolDetail from '@/components/tools/ToolDetail';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,10 +14,12 @@ import {
 import styles from './tools.module.css';
 
 // Define types for our tool data
-type ToolStep = {
-  title: string;
-  description: string;
-} | string;
+type ToolStep =
+  | {
+      title: string;
+      description: string;
+    }
+  | string;
 
 type ToolCategory = {
   name: string;
@@ -40,7 +43,7 @@ type Tool = {
   title: string;
   category: string;
   description: string;
-  icon: ReactNode;
+  icon: JSX.Element;
   content: ToolContent;
 };
 
@@ -202,7 +205,9 @@ export default function Tools() {
       resource: 'Ressource',
     };
 
-    const mappedCategory = categoryMapping[activeCategory as keyof CategoryMapping] || activeCategory;
+    const mappedCategory =
+      categoryMapping[activeCategory as keyof CategoryMapping] ||
+      activeCategory;
 
     const matchesCategory =
       mappedCategory === 'all' || tool.category === mappedCategory;
@@ -284,8 +289,8 @@ export default function Tools() {
             Outils de Coaching
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-light">
-            Libérez votre potentiel avec notre collection d&apos;outils de coaching
-            professionnels
+            Libérez votre potentiel avec notre collection d&apos;outils de
+            coaching professionnels
           </p>
         </div>
 
@@ -382,115 +387,18 @@ export default function Tools() {
 
         {/* Tool Details Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             {selectedTool && (
               <>
                 <DialogHeader>
-                  <DialogTitle className="text-2xl font-bold text-primary flex items-center gap-3">
-                    <div className="bg-primary/10 p-3 rounded-full">
-                      {selectedTool.icon}
-                    </div>
+                  <DialogTitle className="sr-only">
                     {selectedTool.title}
                   </DialogTitle>
                 </DialogHeader>
-                <div className="mt-6 space-y-6">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Description</h3>
-                    <p className="text-muted-foreground">
-                      {selectedTool.description}
-                    </p>
-                  </div>
-                  {selectedTool.content.steps && (
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3">Étapes</h3>
-                      <div className="space-y-4">
-                        {selectedTool.content.steps.map((step, index) => (
-                          <div
-                            key={index}
-                            className="p-4 bg-primary/5 rounded-lg"
-                          >
-                            <h4 className="font-medium text-primary mb-1">
-                              {typeof step === 'string'
-                                ? `Étape ${index + 1}`
-                                : step.title}
-                            </h4>
-                            <p className="text-sm text-muted-foreground">
-                              {typeof step === 'string'
-                                ? step
-                                : step.description}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {selectedTool.content.areas && (
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3">Domaines</h3>
-                      <div className="grid grid-cols-2 gap-3">
-                        {selectedTool.content.areas.map((area, index) => (
-                          <div
-                            key={index}
-                            className="p-3 bg-primary/5 rounded-lg text-sm"
-                          >
-                            {area}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {selectedTool.content.categories && (
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3">
-                        Catégories de Questions
-                      </h3>
-                      <div className="space-y-4">
-                        {selectedTool.content.categories.map(
-                          (category, index) => (
-                            <div
-                              key={index}
-                              className="p-4 bg-primary/5 rounded-lg"
-                            >
-                              <h4 className="font-medium text-primary mb-2">
-                                {category.name}
-                              </h4>
-                              <ul className="list-disc list-inside space-y-1">
-                                {category.questions.map((question, qIndex) => (
-                                  <li
-                                    key={qIndex}
-                                    className="text-sm text-muted-foreground"
-                                  >
-                                    {question}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  {selectedTool.content.sections && (
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3">Sections</h3>
-                      <div className="space-y-4">
-                        {selectedTool.content.sections.map((section, index) => (
-                          <div
-                            key={index}
-                            className="p-4 bg-primary/5 rounded-lg"
-                          >
-                            <h4 className="font-medium text-primary mb-1">
-                              {section.title}
-                            </h4>
-                            <p className="text-sm text-muted-foreground">
-                              {section.prompt}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <ToolDetail
+                  tool={selectedTool}
+                  onClose={() => setIsDialogOpen(false)}
+                />
               </>
             )}
           </DialogContent>

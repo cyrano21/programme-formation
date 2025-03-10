@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, memo } from 'react';
+import React, { useState, memo, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ThemeProvider, ThemeToggle, useTheme } from '@/contexts/ThemeContext';
@@ -31,30 +31,35 @@ const SIDEBAR_NAVIGATION: SidebarNavItem[] = [
 
 // Memoized navigation item to prevent re-renders
 const NavItem = memo(
-  ({ item, onClick }: { item: SidebarNavItem; onClick: () => void }) => {
+  ({ item, onClick, isActive = false }: { item: SidebarNavItem; onClick: () => void; isActive?: boolean }) => {
     const IconComponent = Icons[item.icon];
     return (
       <li key={item.href}>
         <Link
           href={item.href}
           className={`
-          flex items-center gap-3
-          px-4 py-3
+          flex items-center gap-3.5
+          px-4 py-3.5
           hover:bg-primary/10 dark:hover:bg-primary/20
-          rounded-lg 
+          rounded-xl
           transition-all duration-300 ease-in-out
           shadow-sm hover:shadow-md
           text-foreground/80 hover:text-primary
           group relative overflow-hidden
-          before:absolute before:inset-0 before:bg-gradient-to-r before:from-primary/0 before:to-primary/0 hover:before:to-primary/10 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300
+          ${isActive ? 'bg-primary/15 text-primary shadow-md' : ''}
+          before:absolute before:inset-0 before:bg-gradient-to-r before:from-primary/0 before:via-primary/5 before:to-primary/10 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300
+          after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 hover:after:w-full after:bg-primary after:transition-all after:duration-300 ${isActive ? 'after:w-1/2' : ''}
         `}
           onClick={onClick}
           prefetch={true}
         >
-          <div className="relative z-10 flex items-center justify-center w-8 h-8 rounded-md bg-primary/5 group-hover:bg-primary/10 transition-colors duration-300">
-            <IconComponent className="h-4 w-4 text-primary/80 group-hover:text-primary transition-colors duration-300" />
+          <div className="relative z-10 flex items-center justify-center w-9 h-9 rounded-lg bg-primary/5 group-hover:bg-primary/15 transition-colors duration-300 shadow-sm group-hover:shadow">
+            <IconComponent className="h-[18px] w-[18px] text-primary/80 group-hover:text-primary transition-colors duration-300" />
           </div>
           <span className="font-medium relative z-10 group-hover:translate-x-0.5 transition-transform duration-300">{item.label}</span>
+          {isActive && (
+            <span className="absolute right-3 w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+          )}
         </Link>
       </li>
     );
@@ -68,10 +73,12 @@ const Sidebar = memo(
     isSidebarOpen,
     toggleSidebar,
     toggleSupportModal,
+    currentPath,
   }: {
     isSidebarOpen: boolean;
     toggleSidebar: () => void;
     toggleSupportModal: () => void;
+    currentPath: string;
   }) => {
     return (
       <aside
@@ -85,26 +92,26 @@ const Sidebar = memo(
         transition-all duration-300 ease-in-out
         bg-background/95 backdrop-blur-xl
         border-r border-border/30
-        shadow-[0_0_15px_rgba(0,0,0,0.05)]
-        dark:shadow-[0_0_15px_rgba(0,0,0,0.2)]
+        shadow-[0_0_20px_rgba(0,0,0,0.06)]
+        dark:shadow-[0_0_20px_rgba(0,0,0,0.25)]
         flex flex-col
         overflow-hidden
       `}
       >
-        <div className="flex items-center justify-between p-5 border-b border-border/30 bg-gradient-to-r from-background/80 to-background">
-          <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-dark">CoachVerse</span>
+        <div className="flex items-center justify-between p-5 border-b border-border/30 bg-gradient-to-r from-background/80 via-background/90 to-background">
+          <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary/90 to-primary-dark animate-gradient-x">CoachVerse</span>
           <Button
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
-            className="md:hidden text-primary hover:bg-primary/10 transition-all duration-200 active:scale-95"
+            className="md:hidden text-primary hover:bg-primary/10 transition-all duration-200 active:scale-95 rounded-lg"
           >
             <Icons.X className="h-5 w-5" />
           </Button>
         </div>
 
-        <nav className="sidebar-nav p-5">
-          <div className="mb-4 px-2">
+        <nav className="sidebar-nav p-5 overflow-y-auto custom-scrollbar">
+          <div className="mb-5 px-2">
             <h3 className="text-xs uppercase font-semibold text-foreground/50 tracking-wider">Menu principal</h3>
           </div>
           <ul className="space-y-2.5">
@@ -113,16 +120,17 @@ const Sidebar = memo(
                 key={item.href}
                 item={item}
                 onClick={() => toggleSidebar()}
+                isActive={currentPath.startsWith(item.href)}
               />
             ))}
           </ul>
         </nav>
 
-        <div className="absolute bottom-0 left-0 right-0 p-5 border-t border-border/30 bg-gradient-to-b from-transparent to-background/50">
+        <div className="mt-auto p-5 border-t border-border/30 bg-gradient-to-b from-transparent via-background/30 to-background/80">
           <Button
             variant="outline"
             onClick={toggleSupportModal}
-            className="w-full flex items-center gap-2 justify-center text-primary hover:bg-primary/10 border border-primary/20 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-md"
+            className="w-full flex items-center gap-2 justify-center text-primary hover:bg-primary/10 border border-primary/20 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-md rounded-xl py-5"
           >
             <Icons.HelpCircle className="h-4 w-4" />
             <span className="font-medium">Support</span>
@@ -139,30 +147,37 @@ function MainLayoutContent({ children }: MainLayoutProps) {
   const { user, logout } = useFirebaseAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
+  const [currentPath, setCurrentPath] = useState('');
+
+  useEffect(() => {
+    // Get current path for active state highlighting
+    setCurrentPath(window.location.pathname);
+  }, []);
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   const toggleSupportModal = () => setIsSupportModalOpen((prev) => !prev);
 
   return (
     <div
-      className={`main-layout ${theme} flex flex-col md:flex-row min-h-screen max-h-screen overflow-hidden bg-gradient-to-br from-background to-background/95`}
+      className={`main-layout ${theme} flex flex-col md:flex-row min-h-screen max-h-screen overflow-hidden bg-gradient-to-br from-background via-background/98 to-background/95`}
     >
       <Sidebar
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
         toggleSupportModal={toggleSupportModal}
+        currentPath={currentPath}
       />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen w-full relative overflow-hidden">
         {/* Navigation Bar */}
-        <nav className="sticky top-0 z-40 w-full flex items-center justify-between px-5 py-4 border-b border-border/30 bg-gradient-to-r from-background/95 via-background/90 to-background/95 backdrop-blur-xl shadow-[0_4px_20px_-5px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_20px_-5px_rgba(0,0,0,0.2)]">
+        <nav className="sticky top-0 z-40 w-full flex items-center justify-between px-5 py-4 border-b border-border/30 bg-gradient-to-r from-background/95 via-background/90 to-background/95 backdrop-blur-xl shadow-[0_4px_20px_-5px_rgba(0,0,0,0.12)] dark:shadow-[0_4px_20px_-5px_rgba(0,0,0,0.25)]">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="md:hidden text-primary hover:bg-primary/10 active:scale-95 transition-all duration-200"
+              className="md:hidden text-primary hover:bg-primary/10 active:scale-95 transition-all duration-200 rounded-lg"
             >
               <Icons.Menu className="h-5 w-5" />
             </Button>
@@ -176,7 +191,7 @@ function MainLayoutContent({ children }: MainLayoutProps) {
               <ThemeToggle />
               {user && (
                 <div className="flex items-center gap-3 md:gap-4">
-                  <div className="hidden md:flex items-center gap-3 bg-primary/5 px-3 py-1.5 rounded-full transition-all duration-300 hover:bg-primary/10 border border-primary/10 hover:border-primary/20 shadow-sm hover:shadow-md">
+                  <div className="hidden md:flex items-center gap-3 bg-primary/5 px-3.5 py-2 rounded-xl transition-all duration-300 hover:bg-primary/10 border border-primary/10 hover:border-primary/20 shadow-sm hover:shadow-md">
                     {user.photoURL && (
                       <Image
                         src={user.photoURL}
@@ -193,7 +208,7 @@ function MainLayoutContent({ children }: MainLayoutProps) {
                   <Button
                     variant="destructive"
                     onClick={logout}
-                    className="flex items-center gap-2 transition-all duration-300 hover:bg-destructive/90 active:scale-95 shadow-md hover:shadow-lg bg-gradient-to-r from-destructive to-destructive/90 text-destructive-foreground hover:translate-y-[-1px]"
+                    className="flex items-center gap-2 transition-all duration-300 hover:bg-destructive/90 active:scale-95 shadow-md hover:shadow-lg bg-gradient-to-r from-destructive to-destructive/90 text-destructive-foreground hover:translate-y-[-1px] rounded-xl"
                     size="sm"
                   >
                     <Icons.LogOut className="h-4 w-4" />
@@ -206,7 +221,7 @@ function MainLayoutContent({ children }: MainLayoutProps) {
         </nav>
 
         {/* Main Content */}
-        <main className="flex-1 p-5 overflow-y-auto overflow-x-hidden bg-gradient-to-b from-background to-background/95">
+        <main className="flex-1 p-5 overflow-y-auto overflow-x-hidden bg-gradient-to-b from-background via-background/98 to-background/95 custom-scrollbar">
           {children}
         </main>
 
@@ -229,6 +244,34 @@ function MainLayoutContent({ children }: MainLayoutProps) {
           onClick={toggleSidebar}
         />
       )}
+
+      {/* Global styles */}
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background-color: rgba(var(--primary-rgb, 79, 70, 229), 0.2);
+          border-radius: 20px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background-color: rgba(var(--primary-rgb, 79, 70, 229), 0.3);
+        }
+        
+        @keyframes gradient-x {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        
+        .animate-gradient-x {
+          background-size: 200% 200%;
+          animation: gradient-x 8s ease infinite;
+        }
+      `}</style>
     </div>
   );
 }
