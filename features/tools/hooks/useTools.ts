@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { Icons } from '@/utils/icons';
+import { fetchData } from '@/lib/supabase';
 
 // Define types for our tool data
 export type ToolStep = {
@@ -25,6 +26,19 @@ export type ToolContent = {
   categories?: ToolCategory[];
   sections?: ToolSection[];
 };
+
+// Define the shape of tool data coming from the database
+export interface ToolData {
+  id: number | string;
+  title: string;
+  category: string;
+  description: string;
+  iconName: keyof typeof Icons;
+  content: ToolContent;
+  tags?: string[];
+  relatedLessons?: string[];
+  difficulty?: 'débutant' | 'intermédiaire' | 'avancé';
+}
 
 export type Tool = {
   id: number | string;
@@ -53,149 +67,7 @@ export interface ToolsState {
   getToolsForLesson: (_lessonId: string) => Tool[];
 }
 
-// Mock tools data - will be replaced with real data from backend
-const toolsData: Tool[] = [
-  {
-    id: 1,
-    title: 'Modèle GROW',
-    category: 'Cadre',
-    description:
-      'Goal, Reality, Options, Way Forward - Une approche structurée pour définir des objectifs et résoudre des problèmes.',
-    icon: React.createElement(Icons.TrendingUp, { className: "h-5 w-5" }),
-    content: {
-      steps: [
-        { title: 'Objectif', description: 'Que voulez-vous atteindre ?' },
-        {
-          title: 'Réalité',
-          description:
-            "Où en êtes-vous maintenant ? Qu'est-ce qui fonctionne/ne fonctionne pas ?",
-        },
-        {
-          title: 'Options',
-          description:
-            'Que pourriez-vous faire ? Quelles sont vos possibilités ?',
-        },
-        {
-          title: "Plan d'action",
-          description: 'Que ferez-vous ? Quand le ferez-vous ?',
-        },
-      ],
-    },
-    tags: ['objectifs', 'planification', 'leadership'],
-    relatedLessons: ['prise-decision', 'communication-non-violente'],
-    difficulty: 'intermédiaire',
-  },
-  {
-    id: 2,
-    title: "Exercice d'Évaluation des Valeurs",
-    category: 'Exercice',
-    description:
-      'Aidez les clients à identifier et prioriser leurs valeurs fondamentales pour une meilleure prise de décision.',
-    icon: React.createElement(Icons.BookOpen, { className: "h-5 w-5" }),
-    content: {
-      steps: [
-        'Présenter la liste des valeurs communes',
-        'Demander au client de sélectionner ses 10 valeurs principales',
-        'Réduire à 5 valeurs principales par comparaison',
-        'Explorer ce que chaque valeur signifie personnellement',
-      ],
-    },
-    tags: ['valeurs', 'développement personnel', 'conscience de soi'],
-    relatedLessons: ['intelligence-emotionnelle'],
-    difficulty: 'débutant',
-  },
-  {
-    id: 3,
-    title: 'Roue de la Vie',
-    category: 'Modèle',
-    description:
-      'Outil visuel pour évaluer la satisfaction dans différents domaines de la vie.',
-    icon: React.createElement(Icons.Users, { className: "h-5 w-5" }),
-    content: {
-      areas: [
-        'Carrière',
-        'Finances',
-        'Santé',
-        'Famille',
-        'Relations',
-        'Développement Personnel',
-        'Loisirs',
-        'Environnement Physique',
-      ],
-    },
-    tags: ['équilibre', 'développement personnel', 'bien-être'],
-    relatedLessons: ['gestion-stress', 'intelligence-emotionnelle'],
-    difficulty: 'débutant',
-  },
-  {
-    id: 4,
-    title: 'Banque de Questions Puissantes',
-    category: 'Ressource',
-    description:
-      'Collection de questions stimulantes pour différents scénarios de coaching.',
-    icon: React.createElement(Icons.MessageCircle, { className: "h-5 w-5" }),
-    content: {
-      categories: [
-        {
-          name: "Définition d'Objectifs",
-          questions: [
-            'À quoi ressemblerait le succès ?',
-            "Qu'est-ce qui vous freine ?",
-          ],
-        },
-        {
-          name: 'Exploration',
-          questions: ["Quoi d'autre ?", "Qu'y a-t-il sous la surface ?"],
-        },
-        {
-          name: 'Action',
-          questions: [
-            'Quelle est votre première étape ?',
-            'Quand allez-vous commencer ?',
-          ],
-        },
-      ],
-    },
-    tags: ['communication', 'questionnement', 'leadership'],
-    relatedLessons: ['communication-non-violente', 'negociation-avancee'],
-    difficulty: 'intermédiaire',
-  },
-  {
-    id: 5,
-    title: "Fiche d'Objectifs SMART",
-    category: 'Modèle',
-    description:
-      'Modèle pour créer des objectifs Spécifiques, Mesurables, Atteignables, Pertinents et Temporellement définis.',
-    icon: React.createElement(Icons.FileText, { className: "h-5 w-5" }),
-    content: {
-      sections: [
-        {
-          title: 'Spécifique',
-          prompt: 'Que voulez-vous accomplir exactement ?',
-        },
-        {
-          title: 'Mesurable',
-          prompt: "Comment saurez-vous que vous l'avez atteint ?",
-        },
-        {
-          title: 'Atteignable',
-          prompt: 'Est-ce réaliste avec vos ressources actuelles ?',
-        },
-        {
-          title: 'Pertinent',
-          prompt: 'Pourquoi cet objectif est-il important pour vous ?',
-        },
-        {
-          title: 'Temporellement défini',
-          prompt: 'Quand voulez-vous atteindre cet objectif ?',
-        },
-      ],
-    },
-    tags: ['objectifs', 'planification', 'stratégie'],
-    relatedLessons: ['prise-decision'],
-    difficulty: 'intermédiaire',
-  },
-];
+
 
 export function useTools(): ToolsState {
   const { user } = useAuth();
@@ -212,15 +84,27 @@ export function useTools(): ToolsState {
       setError(null);
 
       try {
-        // Dans un environnement de production, nous utiliserions fetchData de Supabase
-        // const data = await fetchData('tools');
-        // setTools(data);
-
-        // Pour le moment, utilisons des données simulées
-        setTimeout(() => {
-          setTools(toolsData);
-          setIsLoading(false);
-        }, 500); // Simuler un délai de chargement
+        // Utiliser fetchData de Supabase pour récupérer les données réelles
+        const data = await fetchData('tools') as ToolData[];
+        
+        // Transformer les données pour correspondre à la structure Tool
+        const formattedTools = data.map((tool: ToolData) => {
+          // Vérifier si l'icône existe dans l'objet Icons avant de créer l'élément
+          const iconExists = Object.prototype.hasOwnProperty.call(Icons, tool.iconName);
+          
+          return {
+            ...tool,
+            // Créer l'élément icon à partir du nom de l'icône stocké dans la base de données
+            // Si l'icône n'existe pas, utiliser une icône par défaut (HelpCircle)
+            icon: React.createElement(
+              iconExists ? Icons[tool.iconName as keyof typeof Icons] : Icons.HelpCircle, 
+              { className: "h-5 w-5" }
+            )
+          };
+        });
+        
+        setTools(formattedTools);
+        setIsLoading(false);
       } catch (err) {
         console.error('Erreur lors du chargement des outils', err);
         setError('Impossible de charger les outils. Veuillez réessayer plus tard.');

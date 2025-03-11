@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { fetchData, supabase } from '@/lib/supabase';
 
 export interface DashboardStats {
   totalModules: number;
@@ -65,22 +66,60 @@ export function useDashboard() {
 
   useEffect(() => {
     if (user) {
-      // Simulate data fetching
       const fetchDashboardData = async () => {
         try {
-          // In a real app, this would be an API call
+          // Fetch real modules data
+          const modulesData = await fetchData('modules');
+          const totalModules = modulesData.length;
+          
+          // Fetch user's module progress
+          const { data: userModulesProgress, error: modulesError } = await supabase
+            .from('user_module_progress')
+            .select('*')
+            .eq('user_id', user.id);
+            
+          if (modulesError) throw modulesError;
+          
+          // Calculate completed and in-progress modules
+          const completedModules = userModulesProgress?.filter(m => m.progress === 100).length || 0;
+          const inProgressModules = userModulesProgress?.filter(m => m.progress > 0 && m.progress < 100).length || 0;
+          
+          // Fetch lessons data
+          const lessonsData = await fetchData('lessons');
+          const totalLessons = lessonsData.length;
+          
+          // Fetch user's lesson progress
+          const { data: userLessonsProgress, error: lessonsError } = await supabase
+            .from('user_progress')
+            .select('*')
+            .eq('user_id', user.id);
+            
+          if (lessonsError) throw lessonsError;
+          
+          // Calculate completed lessons
+          const completedLessons = userLessonsProgress?.filter(l => l.progress === 100).length || 0;
+          
           setStats({
-            totalModules: 10,
-            completedModules: 3,
-            inProgressModules: 2,
-            totalLessons: 50,
-            completedLessons: 15,
+            totalModules,
+            completedModules,
+            inProgressModules,
+            totalLessons,
+            completedLessons,
           });
-
+          
+          // Fetch user's study time and overall progress
+          const { data: userStats, error: userStatsError } = await supabase
+            .from('user_stats')
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
+            
+          if (userStatsError && userStatsError.code !== 'PGRST116') throw userStatsError;
+          
           setUserProgress({
-            userId: user?.id || '',
-            weeklyStudyTime: 5.5,
-            overallProgress: 35,
+            userId: user.id,
+            weeklyStudyTime: userStats?.weekly_study_time || 0,
+            overallProgress: userStats?.overall_progress || 0,
           });
         } catch (error) {
           console.error('Failed to fetch dashboard data', error);

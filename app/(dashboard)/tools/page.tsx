@@ -39,181 +39,34 @@ type ToolContent = {
 };
 
 type Tool = {
-  id: number;
+  id: number | string;
   title: string;
   category: string;
   description: string;
   icon: JSX.Element;
   content: ToolContent;
+  tags?: string[];
+  relatedLessons?: string[];
+  difficulty?: 'débutant' | 'intermédiaire' | 'avancé';
 };
 
-// Define the category mapping type
-type CategoryMapping = {
-  all: string;
-  framework: string;
-  template: string;
-  exercise: string;
-  resource: string;
-};
-
-// Données de placeholder - seront remplacées par les données de Supabase
-const toolsData: Tool[] = [
-  {
-    id: 1,
-    title: 'Modèle GROW',
-    category: 'Cadre',
-    description:
-      'Goal, Reality, Options, Way Forward - Une approche structurée pour définir des objectifs et résoudre des problèmes.',
-    icon: <Icons.TrendingUp />,
-    content: {
-      steps: [
-        { title: 'Objectif', description: 'Que voulez-vous atteindre ?' },
-        {
-          title: 'Réalité',
-          description:
-            "Où en êtes-vous maintenant ? Qu'est-ce qui fonctionne/ne fonctionne pas ?",
-        },
-        {
-          title: 'Options',
-          description:
-            'Que pourriez-vous faire ? Quelles sont vos possibilités ?',
-        },
-        {
-          title: "Plan d'action",
-          description: 'Que ferez-vous ? Quand le ferez-vous ?',
-        },
-      ],
-    },
-  },
-  {
-    id: 2,
-    title: "Exercice d'Évaluation des Valeurs",
-    category: 'Exercice',
-    description:
-      'Aidez les clients à identifier et prioriser leurs valeurs fondamentales pour une meilleure prise de décision.',
-    icon: <Icons.BookOpen />,
-    content: {
-      steps: [
-        'Présenter la liste des valeurs communes',
-        'Demander au client de sélectionner ses 10 valeurs principales',
-        'Réduire à 5 valeurs principales par comparaison',
-        'Explorer ce que chaque valeur signifie personnellement',
-      ],
-    },
-  },
-  {
-    id: 3,
-    title: 'Roue de la Vie',
-    category: 'Modèle',
-    description:
-      'Outil visuel pour évaluer la satisfaction dans différents domaines de la vie.',
-    icon: <Icons.Users />,
-    content: {
-      areas: [
-        'Carrière',
-        'Finances',
-        'Santé',
-        'Famille',
-        'Relations',
-        'Développement Personnel',
-        'Loisirs',
-        'Environnement Physique',
-      ],
-    },
-  },
-  {
-    id: 4,
-    title: 'Banque de Questions Puissantes',
-    category: 'Ressource',
-    description:
-      'Collection de questions stimulantes pour différents scénarios de coaching.',
-    icon: <Icons.MessageCircle />,
-    content: {
-      categories: [
-        {
-          name: "Définition d'Objectifs",
-          questions: [
-            'À quoi ressemblerait le succès ?',
-            "Qu'est-ce qui vous freine ?",
-          ],
-        },
-        {
-          name: 'Exploration',
-          questions: ["Quoi d'autre ?", "Qu'y a-t-il sous la surface ?"],
-        },
-        {
-          name: 'Action',
-          questions: [
-            'Quelle est votre première étape ?',
-            'Quand allez-vous commencer ?',
-          ],
-        },
-      ],
-    },
-  },
-  {
-    id: 5,
-    title: "Fiche d'Objectifs SMART",
-    category: 'Modèle',
-    description:
-      'Modèle pour créer des objectifs Spécifiques, Mesurables, Atteignables, Pertinents et Temporellement définis.',
-    icon: <Icons.FileText />,
-    content: {
-      sections: [
-        {
-          title: 'Spécifique',
-          prompt: 'Que voulez-vous accomplir exactement ?',
-        },
-        {
-          title: 'Mesurable',
-          prompt: "Comment saurez-vous que vous l'avez atteint ?",
-        },
-        {
-          title: 'Atteignable',
-          prompt: 'Est-ce réaliste avec vos ressources actuelles ?',
-        },
-        {
-          title: 'Pertinent',
-          prompt: 'Pourquoi cet objectif est-il important pour vous ?',
-        },
-        {
-          title: 'Temporellement défini',
-          prompt: 'Quand voulez-vous atteindre cet objectif ?',
-        },
-      ],
-    },
-  },
-];
+// Importer le hook useTools pour utiliser les données réelles
+import { useTools } from '@/features/tools/hooks/useTools';
 
 export default function Tools() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeCategory, setActiveCategory] = useState('all');
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const filteredTools = toolsData.filter((tool) => {
-    const matchesSearch =
-      tool.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tool.description.toLowerCase().includes(searchTerm.toLowerCase());
-
-    // Map the UI category to the actual data category
-    const categoryMapping: CategoryMapping = {
-      all: 'all',
-      framework: 'Cadre',
-      template: 'Modèle',
-      exercise: 'Exercice',
-      resource: 'Ressource',
-    };
-
-    const mappedCategory =
-      categoryMapping[activeCategory as keyof CategoryMapping] ||
-      activeCategory;
-
-    const matchesCategory =
-      mappedCategory === 'all' || tool.category === mappedCategory;
-
-    return matchesSearch && matchesCategory;
-  });
+  // Utiliser le hook useTools pour récupérer les données réelles
+  const {
+    filteredTools,
+    searchTerm,
+    setSearchTerm,
+    activeCategory,
+    setActiveCategory,
+    isLoading,
+    error,
+  } = useTools();
 
   const handleViewDetails = (tool: Tool) => {
     setSelectedTool(tool);
@@ -339,51 +192,91 @@ export default function Tools() {
           </div>
         </div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="text-center py-16 animate-fade-in">
+            <div className="bg-card/30 backdrop-blur-sm p-8 rounded-xl shadow-sm max-w-md mx-auto border border-border/50">
+              <Icons.Loader
+                className="mx-auto mb-4 text-primary animate-spin"
+                size={48}
+              />
+              <p className="text-xl text-muted-foreground font-light">
+                Chargement des outils...
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-16 animate-fade-in">
+            <div className="bg-card/30 backdrop-blur-sm p-8 rounded-xl shadow-sm max-w-md mx-auto border border-border/50">
+              <Icons.AlertTriangle
+                className="mx-auto mb-4 text-destructive"
+                size={48}
+              />
+              <p className="text-xl text-muted-foreground font-light">
+                {error}
+              </p>
+              <Button
+                variant="outline"
+                className="mt-6 hover:bg-primary/10 transition-all duration-300"
+                onClick={() => window.location.reload()}
+              >
+                <Icons.RefreshCw className="mr-2 h-4 w-4" />
+                Réessayer
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Tools Grid */}
-        <div
-          className={`grid md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in ${styles.toolsGrid}`}
-        >
-          {filteredTools.map((tool, index) => (
-            <Card
-              key={tool.id}
-              className={`group hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-primary/30 rounded-xl overflow-hidden backdrop-blur-sm animate-slide-up ${
-                styles.toolCard
-              } ${styles[`toolCard${index}`] || ''}`}
-            >
-              <CardHeader className="pb-4 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="flex justify-between items-center relative z-10">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-primary/10 p-3.5 rounded-full shadow-sm group-hover:shadow-md group-hover:bg-primary/15 transition-all duration-300 group-hover:scale-110">
-                      <div className="text-primary group-hover:text-primary/90 transition-colors duration-300 transform group-hover:rotate-6">
-                        {tool.icon}
+        {!isLoading && !error && (
+          <div
+            className={`grid md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in ${styles.toolsGrid}`}
+          >
+            {filteredTools.map((tool, index) => (
+              <Card
+                key={tool.id}
+                className={`group hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-primary/30 rounded-xl overflow-hidden backdrop-blur-sm animate-slide-up ${
+                  styles.toolCard
+                } ${styles[`toolCard${index}`] || ''}`}
+              >
+                <CardHeader className="pb-4 relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="flex justify-between items-center relative z-10">
+                    <div className="flex items-center gap-4">
+                      <div className="bg-primary/10 p-3.5 rounded-full shadow-sm group-hover:shadow-md group-hover:bg-primary/15 transition-all duration-300 group-hover:scale-110">
+                        <div className="text-primary group-hover:text-primary/90 transition-colors duration-300 transform group-hover:rotate-6">
+                          {tool.icon}
+                        </div>
                       </div>
+                      <CardTitle className="text-lg font-semibold group-hover:text-primary transition-colors duration-300">
+                        {tool.title}
+                      </CardTitle>
                     </div>
-                    <CardTitle className="text-lg font-semibold group-hover:text-primary transition-colors duration-300">
-                      {tool.title}
-                    </CardTitle>
+                    <span className="text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-full font-medium shadow-sm group-hover:shadow group-hover:bg-primary/15 transition-all duration-300">
+                      {tool.category}
+                    </span>
                   </div>
-                  <span className="text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-full font-medium shadow-sm group-hover:shadow group-hover:bg-primary/15 transition-all duration-300">
-                    {tool.category}
-                  </span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-6 min-h-[3rem] group-hover:text-foreground/80 transition-colors duration-300">
-                  {tool.description}
-                </p>
-                <Button
-                  variant="outline"
-                  className="w-full group-hover:bg-primary group-hover:text-white transition-all duration-500 hover:scale-105 hover:shadow-lg rounded-lg border-primary/20 hover:border-primary/50"
-                  onClick={() => handleViewDetails(tool)}
-                >
-                  <Icons.Eye className="mr-2 h-4 w-4 group-hover:animate-pulse" />
-                  Voir les détails
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-6 min-h-[3rem] group-hover:text-foreground/80 transition-colors duration-300">
+                    {tool.description}
+                  </p>
+                  <Button
+                    variant="outline"
+                    className="w-full group-hover:bg-primary group-hover:text-white transition-all duration-500 hover:scale-105 hover:shadow-lg rounded-lg border-primary/20 hover:border-primary/50"
+                    onClick={() => handleViewDetails(tool)}
+                  >
+                    <Icons.Eye className="mr-2 h-4 w-4 group-hover:animate-pulse" />
+                    Voir les détails
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
         {/* Tool Details Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -404,7 +297,7 @@ export default function Tools() {
           </DialogContent>
         </Dialog>
 
-        {filteredTools.length === 0 && (
+        {!isLoading && !error && filteredTools.length === 0 && (
           <div className="text-center py-16 animate-fade-in">
             <div className="bg-card/30 backdrop-blur-sm p-8 rounded-xl shadow-sm max-w-md mx-auto border border-border/50">
               <Icons.AlertCircle

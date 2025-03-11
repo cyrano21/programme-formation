@@ -89,6 +89,10 @@ export const Icons = {
   Tool: createDynamicIconComponent('Tool'),
   Eye: createDynamicIconComponent('Eye'),
   ExternalLink: createDynamicIconComponent('ExternalLink'),
+  Target: createDynamicIconComponent('Target'),
+  PieChart: createDynamicIconComponent('PieChart'),
+  CheckSquare: createDynamicIconComponent('CheckSquare'),
+  Grid: createDynamicIconComponent('Grid'),
   Google: (props?: { className?: string }) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"

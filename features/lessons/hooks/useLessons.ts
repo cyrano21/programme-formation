@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { Icons } from '@/utils/icons';
+import { fetchData, supabase } from '@/lib/supabase';
 
 export type Lesson = {
   id: string;
@@ -27,6 +28,46 @@ export type Lesson = {
     duration?: string;
   }>;
 };
+
+// Define interfaces for the user progress data
+interface UserProgressItem {
+  lesson_id: string;
+  progress: number;
+  user_id: string;
+  // Add other fields that might be in the user_progress table
+  last_accessed?: string;
+  completed?: boolean;
+}
+
+interface UserProgressMap {
+  [key: string]: number;
+}
+
+interface LessonData {
+  id: string;
+  title: string;
+  description: string;
+  module: string;
+  duration: string;
+  icon: keyof typeof Icons;
+  category: string;
+  recommended?: boolean;
+  lastAccessed?: string;
+  difficulty?: 'débutant' | 'intermédiaire' | 'avancé';
+  prerequisites?: string[];
+  tags?: string[];
+  content?: Array<{
+    title: string;
+    description: string;
+    duration?: string;
+  }>;
+  exercises?: Array<{
+    title: string;
+    description: string;
+    duration?: string;
+  }>;
+  // Any other fields that might be in the lessons table
+}
 
 export interface LessonsState {
   lessons: Lesson[];
@@ -58,91 +99,35 @@ export function useLessons(): LessonsState {
       setError(null);
 
       try {
-        // Dans un environnement de production, nous utiliserions fetchData de Supabase
-        // const data = await fetchData('lessons');
-        // setLessons(data);
-
-        // Pour le moment, utilisons des données simulées
-        // Mais avec une structure qui pourrait facilement être remplacée par des données réelles
-        setTimeout(() => {
-          const mockLessons: Lesson[] = [
-            {
-              id: 'communication-non-violente',
-              title: 'Communication Non-Violente',
-              description: 'Apprenez à communiquer de manière empathique',
-              module: 'Leadership Avancé',
-              duration: '45 min',
-              progress: user ? 75 : 0, // Progression personnalisée si l'utilisateur est connecté
-              icon: 'MessageCircle',
-              category: 'Leadership',
-              recommended: true,
-              lastAccessed: '2023-06-15T10:30:00',
-              difficulty: 'intermédiaire',
-              tags: ['communication', 'empathie', 'leadership'],
-            },
-            {
-              id: 'gestion-stress',
-              title: 'Techniques de Gestion du Stress',
-              description: 'Stratégies pour gérer le stress professionnel',
-              module: 'Bien-être Professionnel',
-              duration: '60 min',
-              progress: user ? 45 : 0,
-              icon: 'Activity',
-              category: 'Bien-être',
-              recommended: user?.id === 'stress-management-needed',
-              lastAccessed: '2023-06-10T14:20:00',
-              difficulty: 'débutant',
-              tags: ['stress', 'bien-être', 'santé mentale'],
-            },
-            {
-              id: 'prise-decision',
-              title: 'Prise de Décision Stratégique',
-              description: 'Développez votre capacité de décision',
-              module: 'Leadership Avancé',
-              duration: '30 min',
-              progress: user ? 60 : 0,
-              icon: 'BookOpen',
-              category: 'Leadership',
-              recommended: false,
-              lastAccessed: '2023-06-05T09:15:00',
-              difficulty: 'avancé',
-              prerequisites: ['communication-non-violente'],
-              tags: ['décision', 'stratégie', 'leadership'],
-            },
-            {
-              id: 'intelligence-emotionnelle',
-              title: 'Intelligence Émotionnelle',
-              description: 'Comprendre et gérer vos émotions',
-              module: 'Développement Personnel',
-              duration: '50 min',
-              progress: user ? 85 : 0,
-              icon: 'Users',
-              category: 'Développement Personnel',
-              recommended: true,
-              lastAccessed: '2023-06-20T16:45:00',
-              difficulty: 'intermédiaire',
-              tags: ['émotions', 'développement personnel', 'conscience de soi'],
-            },
-            {
-              id: 'negociation-avancee',
-              title: 'Négociation Avancée',
-              description: 'Techniques de négociation professionnelle',
-              module: 'Leadership Avancé',
-              duration: '40 min',
-              progress: user ? 55 : 0,
-              icon: 'TrendingUp',
-              category: 'Leadership',
-              recommended: false,
-              lastAccessed: '2023-06-12T11:30:00',
-              difficulty: 'avancé',
-              prerequisites: ['communication-non-violente', 'prise-decision'],
-              tags: ['négociation', 'persuasion', 'leadership'],
-            },
-          ];
-
-          setLessons(mockLessons);
-          setIsLoading(false);
-        }, 500); // Simuler un délai de chargement
+        // Utiliser fetchData de Supabase pour récupérer les données réelles
+        const data = await fetchData('lessons') as LessonData[];
+        
+        // Si l'utilisateur est connecté, récupérer également ses progressions
+        let userProgress: UserProgressMap = {};
+        if (user) {
+          const { data: progressData, error: progressError } = await supabase
+            .from('user_progress')
+            .select('*')
+            .eq('user_id', user.id);
+            
+          if (!progressError && progressData) {
+            // Créer un objet avec les progressions indexées par lesson_id
+            userProgress = progressData.reduce((acc: UserProgressMap, item: UserProgressItem) => {
+              acc[item.lesson_id] = item.progress;
+              return acc;
+            }, {});
+          }
+        }
+        
+        // Transformer les données pour correspondre à la structure Lesson
+        const formattedLessons = data.map((lesson: LessonData) => ({
+          ...lesson,
+          // Utiliser la progression de l'utilisateur si disponible, sinon 0
+          progress: user && userProgress[lesson.id] ? userProgress[lesson.id] : 0
+        }));
+        
+        setLessons(formattedLessons);
+        setIsLoading(false);
       } catch (err) {
         console.error('Erreur lors du chargement des leçons', err);
         setError('Impossible de charger les leçons. Veuillez réessayer plus tard.');

@@ -97,11 +97,13 @@ export default function ToolRelatedLessons({
             >
               <div className="flex items-center gap-3">
                 <div className="bg-primary/10 p-2 rounded-full">
-                  {typeof lesson.icon === 'string' &&
+                  {lesson.icon && typeof lesson.icon === 'string' && 
+                   Object.prototype.hasOwnProperty.call(Icons, lesson.icon) ? 
                     React.createElement(
                       Icons[lesson.icon as keyof typeof Icons],
                       { className: 'text-primary h-5 w-5' }
-                    )}
+                    ) : 
+                    <div className="h-5 w-5"></div>}
                 </div>
                 <div>
                   <h4 className="font-medium group-hover:text-primary transition-colors">
